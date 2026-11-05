@@ -2,6 +2,7 @@ import { VFC, useEffect, useMemo, useState } from 'react'
 import moment from 'moment'
 import { DailyStatistics, Game, GameWithTime } from '../app/model'
 import { useLocator } from '../locator'
+import { CalendarHeatmap } from '../components/statistics/CalendarHeatmap'
 import { GamesTable } from '../components/statistics/GamesTable'
 import { AllTimeInsights } from '../components/statistics/AllTimeInsights'
 import { BarsChart } from '../components/statistics/BarsChart'
@@ -61,6 +62,11 @@ export const ReportOverall: VFC<{ onSelectGame?: (game: Game) => void }> = ({
             ),
         []
     )
+    const calendarEnd = moment().format('YYYY-MM-DD')
+    const calendarStart = [
+        insights.firstDay ?? calendarEnd,
+        moment().subtract(52, 'weeks').format('YYYY-MM-DD'),
+    ].reduce((a, b) => (a > b ? a : b))
     const weekdayHighlight = insights.weekdayTotals.indexOf(
         Math.max(...insights.weekdayTotals)
     )
@@ -73,6 +79,12 @@ export const ReportOverall: VFC<{ onSelectGame?: (game: Game) => void }> = ({
             {insights.activeDays > 0 && (
                 <>
                     <AllTimeInsights insights={insights} />
+                    <CalendarHeatmap
+                        title="Calendar"
+                        days={days}
+                        start={calendarStart}
+                        end={calendarEnd}
+                    />
                     <BarsChart
                         title="By month"
                         labels={monthLabels}

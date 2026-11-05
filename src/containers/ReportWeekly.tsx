@@ -5,6 +5,7 @@ import { excludeHiddenFromDays } from '../app/hiddenGames'
 import { HiddenGames } from '../components/statistics/HiddenGames'
 import { useHiddenGames } from './useHiddenGames'
 import { useLocator } from '../locator'
+import { CalendarHeatmap } from '../components/statistics/CalendarHeatmap'
 import { Pager } from '../components/Pager'
 import { DailyChart } from '../components/statistics/DailyChart'
 import { GamesDoughnut } from '../components/statistics/GamesDoughnut'
@@ -47,6 +48,18 @@ export const ReportWeekly: VFC<{ onSelectGame?: (game: Game) => void }> = ({
             />
             <PeriodInsights statistics={data} previous={previousVisible} />
             <DailyChart statistics={data} labels="weekday" title="By day" />
+            {data.length > 0 && (
+                <CalendarHeatmap
+                    title="Calendar"
+                    days={data}
+                    start={data[0].date}
+                    end={data[data.length - 1].date}
+                    horizontal
+                    cellSize={72}
+                    showDayNumbers
+                    showTime
+                />
+            )}
             <GamesTable
                 rows={gameRowsForPeriod(data, previousVisible)}
                 onHide={hide}
