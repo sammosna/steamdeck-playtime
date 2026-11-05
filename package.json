@@ -4,7 +4,8 @@
     "description": "PlayTime",
     "scripts": {
         "build": "shx rm -rf dist && rollup -c",
-        "dev": "vite --config dev/vite.config.ts"
+        "dev": "vite --config dev/vite.config.ts",
+        "dev:mount": "rclone mount steamdeck:/home/deck/homebrew/plugins/steamdeck-playtime /tmp/playtime/"
     },
     "keywords": [
         "decky",
