@@ -1,0 +1,22 @@
+version: 57
+jobs:
+- name: github-sync
+  executeInSandbox: false
+  steps:
+  - type: PushRepository
+    name: github
+    remoteUrl: https://github.com/sammosna/steamdeck-playtime.git
+    userName: sammosna
+    passwordSecret: github-token
+    force: false
+    condition: SUCCESSFUL
+    optional: false
+  triggers:
+  - type: BranchUpdateTrigger
+    userMatch: anyone
+  retryCondition: never
+  maxAttempts: 3
+  retryDelay: 30
+  includeUpstreamWhenRebuild: false
+  includeDownstreamWhenRebuild: false
+  timeout: 14400
