@@ -32,6 +32,8 @@ METHODS = {
     "daily_statistics_for_period": lambda a: dataclasses.asdict(
         statistics.daily_statistics_for_period(
             parse_date(a["start_date"]), parse_date(a["end_date"]))),
+    "all_time_daily_statistics": lambda a: [
+        dataclasses.asdict(day) for day in statistics.all_time_daily_statistics()],
     "per_game_overall_statistics": lambda a: statistics.per_game_overall_statistic(),
 }
 

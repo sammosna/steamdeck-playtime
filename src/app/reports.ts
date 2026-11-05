@@ -64,6 +64,10 @@ export class Reports {
         )
     }
 
+    public async allTimeDailyStatistics(): Promise<DailyStatistics[]> {
+        return await this.backend.fetchAllTimeDailyStatistics()
+    }
+
     public async overallStatistics(): Promise<GameWithTime[]> {
         return await this.backend.fetchPerGameOverallStatistics()
     }

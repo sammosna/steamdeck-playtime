@@ -1,38 +1,15 @@
-import { CSSProperties, FC } from 'react'
+import { FC } from 'react'
 import moment from 'moment'
 import { DailyStatistics } from '../../app/model'
 import { humanReadableTime } from '../../app/formatters'
 import { computeInsights } from '../../app/insights'
 import { Card } from '../Card'
-import { RADIUS_SMALL } from '../../styles'
+import { Tile, TileGroup } from './Tiles'
 
 const GREEN = '#9dd866'
 const RED = '#ca472f'
 
 const percent = (ratio: number) => `${Math.round(ratio * 100)}%`
-
-const grid: CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-    gap: '12px',
-}
-
-const tile: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-    padding: '12px 14px',
-    background: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: RADIUS_SMALL,
-    minWidth: 0,
-}
-
-const Tile: FC<{ label: string; value: string }> = ({ label, value }) => (
-    <div style={tile}>
-        <div style={{ fontSize: '11px', opacity: 0.6 }}>{label}</div>
-        <div style={{ fontSize: '15px', fontWeight: 600 }}>{value}</div>
-    </div>
-)
 
 export const PeriodInsights: FC<{
     statistics: DailyStatistics[]
@@ -62,7 +39,7 @@ export const PeriodInsights: FC<{
                     </div>
                 )}
             </div>
-            <div style={grid}>
+            <TileGroup>
                 <Tile label="Daily average" value={humanReadableTime(insights.dailyAverage)} />
                 <Tile
                     label="Days played"
@@ -76,9 +53,8 @@ export const PeriodInsights: FC<{
                 {insights.bestDay && (
                     <Tile
                         label="Best day"
-                        value={`${moment(insights.bestDay.date).format(
-                            'ddd D MMM'
-                        )} · ${humanReadableTime(insights.bestDay.time)}`}
+                        value={humanReadableTime(insights.bestDay.time)}
+                        hint={moment(insights.bestDay.date).format('ddd D MMM')}
                     />
                 )}
                 {insights.topGame && (
@@ -89,7 +65,7 @@ export const PeriodInsights: FC<{
                         )}`}
                     />
                 )}
-            </div>
+            </TileGroup>
         </Card>
     )
 }

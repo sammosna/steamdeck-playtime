@@ -1,32 +1,70 @@
-import { VFC, useEffect, useState } from 'react'
-import { GameWithTime } from '../app/model'
+import { VFC, useEffect, useMemo, useState } from 'react'
+import moment from 'moment'
+import { DailyStatistics, GameWithTime } from '../app/model'
 import { useLocator } from '../locator'
 import { GamesTable } from '../components/statistics/GamesTable'
+import { AllTimeInsights } from '../components/statistics/AllTimeInsights'
+import { BarsChart } from '../components/statistics/BarsChart'
 import { gameRowsFromTotals } from '../app/insights'
+import { computeAllTimeInsights } from '../app/allTimeInsights'
 import { report_stack } from '../styles'
 
 export const ReportOverall: VFC = () => {
     const { reports } = useLocator()
-    const [data, setData] = useState<GameWithTime[]>([])
+    const [games, setGames] = useState<GameWithTime[]>([])
+    const [days, setDays] = useState<DailyStatistics[]>([])
     const [isLoading, setLoading] = useState<Boolean>(false)
 
     useEffect(() => {
         setLoading(true)
-        reports.overallStatistics().then((it) => {
-            setData(it)
-            setLoading(false)
-        })
+        Promise.all([reports.overallStatistics(), reports.allTimeDailyStatistics()]).then(
+            ([overall, daily]) => {
+                setGames(overall)
+                setDays(daily)
+                setLoading(false)
+            }
+        )
     }, [])
+
+    const insights = useMemo(() => computeAllTimeInsights(days), [days])
+    const monthLabels = useMemo(
+        () => insights.monthlyTotals.map((it) => moment(it.month, 'YYYY-MM').format("MMM 'YY")),
+        [insights]
+    )
+    const monthSeconds = useMemo(
+        () => insights.monthlyTotals.map((it) => it.time),
+        [insights]
+    )
+    const weekdayLabels = useMemo(
+        () => [0, 1, 2, 3, 4, 5, 6].map((i) => moment().isoWeekday(i + 1).format('ddd')),
+        []
+    )
+    const weekdayHighlight = insights.weekdayTotals.indexOf(Math.max(...insights.weekdayTotals))
 
     if (isLoading) {
         return <div>Loading...</div>
     }
-    if (!data) {
-        return <div>Error while loading data</div>
-    }
     return (
         <div style={report_stack}>
-            <GamesTable rows={gameRowsFromTotals(data)} defaultExpanded />
+            {insights.activeDays > 0 && (
+                <>
+                    <AllTimeInsights insights={insights} />
+                    <BarsChart
+                        title="By month"
+                        labels={monthLabels}
+                        seconds={monthSeconds}
+                        averageSeconds={insights.monthlyAverage}
+                        highlight={monthSeconds.indexOf(Math.max(...monthSeconds))}
+                    />
+                    <BarsChart
+                        title="By weekday"
+                        labels={weekdayLabels}
+                        seconds={insights.weekdayTotals}
+                        highlight={weekdayHighlight}
+                    />
+                </>
+            )}
+            <GamesTable rows={gameRowsFromTotals(games)} defaultExpanded />
         </div>
     )
 }

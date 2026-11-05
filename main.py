@@ -82,6 +82,13 @@ class Plugin:
         except Exception:
             logger.exception("Unhandled exception")
 
+    async def all_time_daily_statistics(self):
+        try:
+            return [dataclasses.asdict(day)
+                    for day in self.statistics.all_time_daily_statistics()]
+        except Exception:
+            logger.exception("Unhandled exception")
+
     async def per_game_overall_statistics(self):
         try:
             return self.statistics.per_game_overall_statistic()

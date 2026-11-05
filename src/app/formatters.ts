@@ -1,6 +1,6 @@
 import { Interval } from './reports'
 
-export { humanReadableTime, toIsoDateOnly, formatMonthInterval, formatWeekInterval }
+export { humanReadableTime, humanReadableMinutes, toIsoDateOnly, formatMonthInterval, formatWeekInterval }
 
 function humanReadableTime(seconds: number, short: boolean = true): string {
     let minutes = Math.floor(seconds / 60)
@@ -26,6 +26,10 @@ function humanReadableTime(seconds: number, short: boolean = true): string {
         result += `${minutes % 60} ${plurals(minutes % 60, 'minute')}`
     }
     return result
+}
+
+function humanReadableMinutes(minutes: number): string {
+    return humanReadableTime(minutes * 60, true)
 }
 
 function toIsoDateOnly(date: Date) {

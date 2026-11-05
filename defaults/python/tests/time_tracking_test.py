@@ -40,6 +40,23 @@ class TestPlayTime(AbstractDatabaseTest):
             }
         ])
 
+    def test_should_list_only_days_with_playtime_for_all_time(self):
+        first = datetime(2022, 1, 1, 9, 0)
+        later = datetime(2022, 3, 5, 20, 0)
+        self.time_tracking.add_time(
+            first.timestamp(), (first + timedelta(hours=1)).timestamp(), "100", "Zelda BOTW")
+        self.time_tracking.add_time(
+            later.timestamp(), (later + timedelta(minutes=30)).timestamp(), "200", "Hades")
+        self.time_tracking.add_time(
+            (later + timedelta(hours=1)).timestamp(),
+            (later + timedelta(hours=2)).timestamp(), "100", "Zelda BOTW")
+
+        result = self.playtime_statistics.all_time_daily_statistics()
+
+        self.assertEqual([(r.date, r.total) for r in result],
+                         [("2022-01-01", 3600), ("2022-03-05", 5400)])
+        self.assertEqual(sorted(g.game.id for g in result[1].games), ["100", "200"])
+
     def test_should_add_new_interval_to_existing_game(self):
         now = datetime(2022, 1, 1, 9, 0)
         self.time_tracking.add_time(

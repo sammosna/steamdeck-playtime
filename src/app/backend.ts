@@ -89,6 +89,22 @@ export class Backend {
         return response.result as StatisticForIntervalResponse
     }
 
+    /** Every day with recorded playtime, oldest first. */
+    async fetchAllTimeDailyStatistics(): Promise<DailyStatistics[]> {
+        const response = await this.serverApi.callPluginMethod<{}, DailyStatistics[]>(
+            'all_time_daily_statistics',
+            {}
+        )
+        if (!response.success) {
+            this.errorOnBackend(
+                "Can't fetch all time daily statistics, because of backend error (all_time_daily_statistics)"
+            )
+            return []
+        }
+
+        return response.result as DailyStatistics[]
+    }
+
     async fetchPerGameOverallStatistics(): Promise<GameWithTime[]> {
         const response = await this.serverApi.callPluginMethod<{}, GameWithTime[]>(
             'per_game_overall_statistics',
