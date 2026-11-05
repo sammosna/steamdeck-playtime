@@ -5,9 +5,21 @@ import { PageWrapper } from '../components/PageWrapper'
 import { ReportMonthly } from '../containers/ReportMonthly'
 import { ReportWeekly } from '../containers/ReportWeekly'
 import { ReportOverall } from '../containers/ReportOverall'
+import { GamePage } from '../containers/GamePage'
+import { Game } from '../app/model'
 
 export const DetailedPage: VFC = () => {
     const [currentTabRoute, setCurrentTabRoute] = useState<string>('all-time')
+    const [selectedGame, setSelectedGame] = useState<Game | null>(null)
+    if (selectedGame) {
+        return (
+            <PageWrapper>
+                <Tab>
+                    <GamePage game={selectedGame} onBack={() => setSelectedGame(null)} />
+                </Tab>
+            </PageWrapper>
+        )
+    }
     return (
         <PageWrapper>
             <Tabs
@@ -20,7 +32,7 @@ export const DetailedPage: VFC = () => {
                         title: 'All Time',
                         content: (
                             <Tab>
-                                <ReportOverall />
+                                <ReportOverall onSelectGame={setSelectedGame} />
                             </Tab>
                         ),
                         id: 'all-time',
@@ -29,7 +41,7 @@ export const DetailedPage: VFC = () => {
                         title: 'By Month',
                         content: (
                             <Tab>
-                                <ReportMonthly />
+                                <ReportMonthly onSelectGame={setSelectedGame} />
                             </Tab>
                         ),
                         id: 'by-month',
@@ -38,7 +50,7 @@ export const DetailedPage: VFC = () => {
                         title: 'By Week',
                         content: (
                             <Tab>
-                                <ReportWeekly />
+                                <ReportWeekly onSelectGame={setSelectedGame} />
                             </Tab>
                         ),
                         id: 'by-week',

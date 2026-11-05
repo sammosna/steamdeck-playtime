@@ -1,5 +1,5 @@
 import { VFC, useMemo } from 'react'
-import { DailyStatistics } from '../app/model'
+import { DailyStatistics, Game } from '../app/model'
 import { gameRowsForPeriod } from '../app/insights'
 import { excludeHiddenFromDays } from '../app/hiddenGames'
 import { HiddenGames } from '../components/statistics/HiddenGames'
@@ -15,10 +15,12 @@ import { usePeriodReport } from './usePeriodReport'
 import { report_stack } from '../styles'
 import { Focusable } from 'decky-frontend-lib'
 
-export const ReportWeekly: VFC = () => {
+export const ReportWeekly: VFC<{ onSelectGame?: (game: Game) => void }> = ({
+    onSelectGame,
+}) => {
     const { reports } = useLocator()
-    const { isLoading, page, previous, onNext, onPrev, triggerPaging } = usePeriodReport(() =>
-        reports.weeklyStatistics()
+    const { isLoading, page, previous, onNext, onPrev, triggerPaging } = usePeriodReport(
+        () => reports.weeklyStatistics()
     )
 
     const { hidden, hiddenIds, hide, show } = useHiddenGames()
@@ -45,7 +47,11 @@ export const ReportWeekly: VFC = () => {
             />
             <PeriodInsights statistics={data} previous={previousVisible} />
             <DailyChart statistics={data} labels="weekday" title="By day" />
-            <GamesTable rows={gameRowsForPeriod(data, previousVisible)} onHide={hide} />
+            <GamesTable
+                rows={gameRowsForPeriod(data, previousVisible)}
+                onHide={hide}
+                onSelect={onSelectGame}
+            />
             <GamesDoughnut statistics={data} />
             <HiddenGames games={hidden} onShow={show} />
         </Focusable>

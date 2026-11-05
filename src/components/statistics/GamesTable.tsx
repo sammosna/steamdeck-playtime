@@ -10,7 +10,11 @@ import { RADIUS_SMALL } from '../../styles'
 const GREEN = '#9dd866'
 const RED = '#ca472f'
 
-const cell: CSSProperties = { padding: '10px 10px', whiteSpace: 'nowrap', textAlign: 'right' }
+const cell: CSSProperties = {
+    padding: '10px 10px',
+    whiteSpace: 'nowrap',
+    textAlign: 'right',
+}
 const nameCell: CSSProperties = {
     ...cell,
     textAlign: 'left',
@@ -44,6 +48,8 @@ export const GamesTable: FC<{
     defaultExpanded?: boolean
     /** When set, each row gets a button to hide that game from the dashboard */
     onHide?: (game: Game) => void
+    /** When set, the game name opens that game's statistics */
+    onSelect?: (game: Game) => void
 }> = (props) => {
     const [expanded, setExpanded] = useState<boolean>(props.defaultExpanded ?? false)
     const isPeriod = props.rows.some((it) => it.activeDays !== undefined)
@@ -83,11 +89,19 @@ export const GamesTable: FC<{
                 >
                     <table style={{ borderCollapse: 'collapse', width: '100%' }}>
                         <thead>
-                            <tr style={{ opacity: 0.65, background: 'rgba(255, 255, 255, 0.05)' }}>
+                            <tr
+                                style={{
+                                    opacity: 0.65,
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                }}
+                            >
                                 {header.map((it, i) => (
                                     <th
                                         key={it}
-                                        style={{ ...cell, textAlign: i == 1 ? 'left' : 'right' }}
+                                        style={{
+                                            ...cell,
+                                            textAlign: i == 1 ? 'left' : 'right',
+                                        }}
                                     >
                                         {it}
                                     </th>
@@ -103,14 +117,35 @@ export const GamesTable: FC<{
                                     }}
                                 >
                                     <td style={{ ...cell, opacity: 0.6 }}>{i + 1}</td>
-                                    <td style={nameCell}>{row.game.name || 'Unknown'}</td>
+                                    <td style={nameCell}>
+                                        {props.onSelect ? (
+                                            <DialogButton
+                                                style={{
+                                                    width: 'auto',
+                                                    minWidth: 0,
+                                                    padding: '4px 8px',
+                                                    fontSize: '12px',
+                                                    textAlign: 'left',
+                                                    background: 'transparent',
+                                                    borderRadius: RADIUS_SMALL,
+                                                }}
+                                                onClick={() => props.onSelect!(row.game)}
+                                            >
+                                                {row.game.name || 'Unknown'}
+                                            </DialogButton>
+                                        ) : (
+                                            row.game.name || 'Unknown'
+                                        )}
+                                    </td>
                                     <td style={cell}>{humanReadableTime(row.time)}</td>
                                     <td style={cell}>{percent(row.share)}</td>
                                     {isPeriod && (
                                         <>
                                             <td style={cell}>{row.activeDays}</td>
                                             <td style={cell}>
-                                                {humanReadableTime(row.averagePerActiveDay ?? 0)}
+                                                {humanReadableTime(
+                                                    row.averagePerActiveDay ?? 0
+                                                )}
                                             </td>
                                             <td style={cell}>
                                                 {row.bestDay
@@ -120,11 +155,15 @@ export const GamesTable: FC<{
                                                     : '–'}
                                             </td>
                                             <td style={cell}>
-                                                {row.lastPlayed ? dayText(row.lastPlayed) : '–'}
+                                                {row.lastPlayed
+                                                    ? dayText(row.lastPlayed)
+                                                    : '–'}
                                             </td>
                                         </>
                                     )}
-                                    {hasChange && <td style={cell}>{change(row.change)}</td>}
+                                    {hasChange && (
+                                        <td style={cell}>{change(row.change)}</td>
+                                    )}
                                     {props.onHide && (
                                         <td style={cell}>
                                             <DialogButton

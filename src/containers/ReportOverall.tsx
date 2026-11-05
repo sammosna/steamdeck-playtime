@@ -1,6 +1,6 @@
 import { VFC, useEffect, useMemo, useState } from 'react'
 import moment from 'moment'
-import { DailyStatistics, GameWithTime } from '../app/model'
+import { DailyStatistics, Game, GameWithTime } from '../app/model'
 import { useLocator } from '../locator'
 import { GamesTable } from '../components/statistics/GamesTable'
 import { AllTimeInsights } from '../components/statistics/AllTimeInsights'
@@ -12,13 +12,21 @@ import { HiddenGames } from '../components/statistics/HiddenGames'
 import { useHiddenGames } from './useHiddenGames'
 import { report_stack } from '../styles'
 
-export const ReportOverall: VFC = () => {
+export const ReportOverall: VFC<{ onSelectGame?: (game: Game) => void }> = ({
+    onSelectGame,
+}) => {
     const { reports } = useLocator()
     const [allGames, setGames] = useState<GameWithTime[]>([])
     const [allDays, setDays] = useState<DailyStatistics[]>([])
     const { hidden, hiddenIds, hide, show } = useHiddenGames()
-    const games = useMemo(() => excludeHiddenFromTotals(allGames, hiddenIds), [allGames, hiddenIds])
-    const days = useMemo(() => excludeHiddenFromDays(allDays, hiddenIds), [allDays, hiddenIds])
+    const games = useMemo(
+        () => excludeHiddenFromTotals(allGames, hiddenIds),
+        [allGames, hiddenIds]
+    )
+    const days = useMemo(
+        () => excludeHiddenFromDays(allDays, hiddenIds),
+        [allDays, hiddenIds]
+    )
     const [isLoading, setLoading] = useState<Boolean>(false)
 
     useEffect(() => {
@@ -34,7 +42,10 @@ export const ReportOverall: VFC = () => {
 
     const insights = useMemo(() => computeAllTimeInsights(days), [days])
     const monthLabels = useMemo(
-        () => insights.monthlyTotals.map((it) => moment(it.month, 'YYYY-MM').format("MMM 'YY")),
+        () =>
+            insights.monthlyTotals.map((it) =>
+                moment(it.month, 'YYYY-MM').format("MMM 'YY")
+            ),
         [insights]
     )
     const monthSeconds = useMemo(
@@ -42,10 +53,17 @@ export const ReportOverall: VFC = () => {
         [insights]
     )
     const weekdayLabels = useMemo(
-        () => [0, 1, 2, 3, 4, 5, 6].map((i) => moment().isoWeekday(i + 1).format('ddd')),
+        () =>
+            [0, 1, 2, 3, 4, 5, 6].map((i) =>
+                moment()
+                    .isoWeekday(i + 1)
+                    .format('ddd')
+            ),
         []
     )
-    const weekdayHighlight = insights.weekdayTotals.indexOf(Math.max(...insights.weekdayTotals))
+    const weekdayHighlight = insights.weekdayTotals.indexOf(
+        Math.max(...insights.weekdayTotals)
+    )
 
     if (isLoading) {
         return <div>Loading...</div>
@@ -70,7 +88,12 @@ export const ReportOverall: VFC = () => {
                     />
                 </>
             )}
-            <GamesTable rows={gameRowsFromTotals(games)} defaultExpanded onHide={hide} />
+            <GamesTable
+                rows={gameRowsFromTotals(games)}
+                defaultExpanded
+                onHide={hide}
+                onSelect={onSelectGame}
+            />
             <HiddenGames games={hidden} onShow={show} />
         </div>
     )
