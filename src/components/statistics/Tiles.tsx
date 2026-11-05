@@ -1,4 +1,5 @@
 import { CSSProperties, FC } from 'react'
+import { IconType } from 'react-icons'
 import { RADIUS_SMALL } from '../../styles'
 
 const grid: CSSProperties = {
@@ -15,12 +16,40 @@ const tile: CSSProperties = {
     background: 'rgba(255, 255, 255, 0.05)',
     borderRadius: RADIUS_SMALL,
     minWidth: 0,
+    position: 'relative',
+    overflow: 'hidden',
 }
 
-export const Tile: FC<{ label: string; value: string; hint?: string }> = (props) => (
+/** Large, faint grey filled icon in the top right corner. */
+const WatermarkIcon: FC<{ icon: IconType }> = ({ icon: Icon }) => (
+    <div
+        style={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            display: 'flex',
+            color: '#ffffff',
+            opacity: 0.08,
+            pointerEvents: 'none',
+        }}
+    >
+        <Icon size={44} />
+    </div>
+)
+
+export const Tile: FC<{
+    icon: IconType
+    label: string
+    value: string
+    hint?: string
+    valueColor?: string
+}> = (props) => (
     <div style={tile}>
+        <WatermarkIcon icon={props.icon} />
         <div style={{ fontSize: '11px', opacity: 0.6 }}>{props.label}</div>
-        <div style={{ fontSize: '15px', fontWeight: 600 }}>{props.value}</div>
+        <div style={{ fontSize: '15px', fontWeight: 600, color: props.valueColor }}>
+            {props.value}
+        </div>
         {props.hint && <div style={{ fontSize: '11px', opacity: 0.6 }}>{props.hint}</div>}
     </div>
 )

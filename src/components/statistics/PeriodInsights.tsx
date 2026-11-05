@@ -4,6 +4,14 @@ import { DailyStatistics } from '../../app/model'
 import { humanReadableTime } from '../../app/formatters'
 import { computeInsights } from '../../app/insights'
 import { Card } from '../Card'
+import {
+    MdEmojiEvents,
+    MdEventAvailable,
+    MdLocalFireDepartment,
+    MdSpeed,
+    MdSportsEsports,
+    MdTimer,
+} from 'react-icons/md'
 import { Tile, TileGroup } from './Tiles'
 
 const GREEN = '#9dd866'
@@ -40,18 +48,21 @@ export const PeriodInsights: FC<{
                 )}
             </div>
             <TileGroup>
-                <Tile label="Daily average" value={humanReadableTime(insights.dailyAverage)} />
+                <Tile icon={MdSpeed} label="Daily average" value={humanReadableTime(insights.dailyAverage)} />
                 <Tile
+                    icon={MdEventAvailable}
                     label="Days played"
                     value={`${insights.activeDays} of ${insights.elapsedDays}`}
                 />
                 <Tile
+                    icon={MdTimer}
                     label="Average on days played"
                     value={humanReadableTime(insights.averageOnActiveDays)}
                 />
-                <Tile label="Longest streak" value={days(insights.longestStreak)} />
+                <Tile icon={MdLocalFireDepartment} label="Longest streak" value={days(insights.longestStreak)} />
                 {insights.bestDay && (
                     <Tile
+                        icon={MdEmojiEvents}
                         label="Best day"
                         value={humanReadableTime(insights.bestDay.time)}
                         hint={moment(insights.bestDay.date).format('ddd D MMM')}
@@ -59,6 +70,7 @@ export const PeriodInsights: FC<{
                 )}
                 {insights.topGame && (
                     <Tile
+                        icon={MdSportsEsports}
                         label="Most played"
                         value={`${insights.topGame.game.name} · ${percent(
                             insights.topGame.share
