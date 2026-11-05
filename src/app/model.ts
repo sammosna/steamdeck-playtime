@@ -36,7 +36,7 @@ function convertDailyStatisticsToGameWithTime(data: DailyStatistics[]): GameWith
             if (found) {
                 found.time += game.time
             } else {
-                result.push(game)
+                result.push({ ...game })
             }
         })
     })

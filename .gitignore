@@ -49,3 +49,6 @@ backend/out
 
 # Ignore python symlink
 /python
+
+# Local dev database (personal data)
+/dev/storage.db*

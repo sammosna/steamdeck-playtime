@@ -11,7 +11,7 @@ export const GamesTimeBarView: React.FC<{ data: GameWithTime[] }> = (props) => {
     return (
         <div className="games-by-week">
             {sortedByTime.map((it) => (
-                <FocusableExt>
+                <FocusableExt key={it.game.id}>
                     <VerticalContainer>
                         <div style={hide_text_on_overflow}>{it.game.name}</div>
                         <Timebar time={it.time} allTime={allTime} />

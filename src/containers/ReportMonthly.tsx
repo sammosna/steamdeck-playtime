@@ -1,69 +1,44 @@
-import { VFC, useEffect, useState } from 'react'
+import { VFC } from 'react'
 import { useLocator } from '../locator'
-import { Paginated, empty } from '../app/reports'
-import { DailyStatistics, convertDailyStatisticsToGameWithTime } from '../app/model'
+import { convertDailyStatisticsToGameWithTime } from '../app/model'
 import { Pager } from '../components/Pager'
-import { AverageAndOverall } from '../components/statistics/AverageAndOverall'
-import { MonthView } from '../components/statistics/MonthView'
+import { PeriodInsights } from '../components/statistics/PeriodInsights'
+import { DailyChart } from '../components/statistics/DailyChart'
 import { ChartStyle } from '../app/settings'
-import { PieView } from '../components/statistics/PieView'
+import { GamesDoughnut } from '../components/statistics/GamesDoughnut'
 import { PanelSection, PanelSectionRow } from 'decky-frontend-lib'
 import { formatMonthInterval } from '../app/formatters'
 import { GamesTimeBarView } from '../components/statistics/GamesTimeBarView'
+import { usePeriodReport } from './usePeriodReport'
 
 export const ReportMonthly: VFC = () => {
     const { reports, currentSettings: settings } = useLocator()
-    const [isLoading, setLoading] = useState<Boolean>(false)
-    const [currentPage, setCurrentPage] = useState<Paginated<DailyStatistics>>(empty())
+    const { isLoading, page, previous, onNext, onPrev } = usePeriodReport(() =>
+        reports.monthlyStatistics()
+    )
+    const data = page.current().data
 
-    useEffect(() => {
-        setLoading(true)
-        reports.monthlyStatistics().then((it) => {
-            setCurrentPage(it)
-            setLoading(false)
-        })
-    }, [])
-
-    const onNextWeek = () => {
-        setLoading(true)
-        currentPage?.next().then((it) => {
-            setCurrentPage(it)
-            setLoading(false)
-        })
-    }
-    const onPrevWeek = () => {
-        setLoading(true)
-        currentPage?.prev().then((it) => {
-            setCurrentPage(it)
-            setLoading(false)
-        })
-    }
     return (
         <div>
             <PanelSection>
                 <PanelSectionRow>
                     <Pager
-                        onNext={onNextWeek}
-                        onPrev={onPrevWeek}
-                        currentText={formatMonthInterval(currentPage.current().interval)}
-                        hasNext={currentPage.hasNext()}
-                        hasPrev={currentPage.hasPrev()}
+                        onNext={onNext}
+                        onPrev={onPrev}
+                        currentText={formatMonthInterval(page.current().interval)}
+                        hasNext={page.hasNext()}
+                        hasPrev={page.hasPrev()}
                     />
                 </PanelSectionRow>
             </PanelSection>
             {isLoading && <div>Loading...</div>}
-            {!isLoading && !currentPage && <div>Error while loading data</div>}
-            {!isLoading && currentPage && (
+            {!isLoading && (
                 <div>
-                    <AverageAndOverall statistics={currentPage.current().data} />
-                    <MonthView statistics={currentPage.current().data} />
-                    <GamesTimeBarView
-                        data={convertDailyStatisticsToGameWithTime(
-                            currentPage.current().data
-                        )}
-                    />
+                    <PeriodInsights statistics={data} previous={previous} />
+                    <DailyChart statistics={data} labels="day" />
+                    <GamesTimeBarView data={convertDailyStatisticsToGameWithTime(data)} />
                     {settings.gameChartStyle == ChartStyle.PIE_AND_BARS && (
-                        <PieView statistics={currentPage.current().data} />
+                        <GamesDoughnut statistics={data} />
                     )}
                 </div>
             )}
