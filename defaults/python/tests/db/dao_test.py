@@ -94,6 +94,24 @@ class TestDao(AbstractDatabaseTest):
 
         self.assertEqual(self._get_overall_time_for_game("1001"), 3600)
 
+    def test_should_not_overwrite_game_name_with_empty_one(self):
+        self.dao.save_game_dict("1001", "Zelda BOTW")
+        self.dao.save_game_dict("1001", "")
+        self.dao.save_game_dict("1001", "   ")
+
+        self.assertEqual(self._get_game_name("1001"), "Zelda BOTW")
+
+    def test_should_fill_in_name_when_only_empty_one_was_known(self):
+        self.dao.save_game_dict("1001", "")
+        self.dao.save_game_dict("1001", "Zelda BOTW")
+
+        self.assertEqual(self._get_game_name("1001"), "Zelda BOTW")
+
+    def _get_game_name(self, game_id: str):
+        return sqlite3.connect(self.database_file).execute(
+            "select name from game_dict where game_id = ?",
+            (game_id,)).fetchone()[0]
+
     def _get_overall_time_for_game(self, game_id: str):
         return list(
             filter(

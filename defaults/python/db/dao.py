@@ -121,7 +121,7 @@ class Dao:
                 INSERT INTO game_dict (game_id, name)
                 VALUES (:game_id, :game_name)
                 ON CONFLICT (game_id) DO UPDATE SET name = :game_name
-                WHERE name != :game_name
+                WHERE name != :game_name AND trim(:game_name) != ''
                 """,
             {"game_id": game_id, "game_name": game_name}
         )
@@ -188,8 +188,7 @@ class Dao:
                 SELECT STRFTIME('%Y-%m-%d', STRFTIME('%s', date_time), 'unixepoch') as date,
                     pt.game_id as game_id,
                     gd.name as game_name,
-                    SUM(duration) as total_time,
-                    duration as total_time
+                    SUM(duration) as total_time
                 FROM play_time pt
                         LEFT JOIN game_dict gd ON pt.game_id = gd.game_id
                 WHERE STRFTIME('%s', date_time) BETWEEN STRFTIME('%s', :begin) AND

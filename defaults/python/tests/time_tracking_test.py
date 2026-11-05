@@ -240,6 +240,58 @@ class TestPlayTime(AbstractDatabaseTest):
         result = self.playtime_statistics.per_game_overall_statistic()
         self.assertEqual(result[0]["time"], 3600 + 1800)
 
+    def test_should_split_session_across_every_day_it_covers(self):
+        start = datetime(2022, 1, 1, 20, 0)
+        end = datetime(2022, 1, 4, 10, 0)
+        self.time_tracking.add_time(
+            start.timestamp(), end.timestamp(), "100", "Zelda BOTW")
+
+        result = self.playtime_statistics.daily_statistics_for_period(
+            start.date(), end.date())
+        self.assertEqual(
+            [(r.date, r.total) for r in result.data],
+            [
+                ("2022-01-01", 4 * 3600),
+                ("2022-01-02", 24 * 3600),
+                ("2022-01-03", 24 * 3600),
+                ("2022-01-04", 10 * 3600),
+            ])
+        overall = self.playtime_statistics.per_game_overall_statistic()
+        self.assertEqual(overall[0]["time"], 62 * 3600)
+
+    def test_should_ignore_empty_or_negative_interval(self):
+        now = datetime(2022, 1, 1, 9, 0)
+        self.time_tracking.add_time(
+            now.timestamp(), now.timestamp(), "100", "Zelda BOTW")
+        self.time_tracking.add_time(
+            now.timestamp(),
+            (now - timedelta(minutes=5)).timestamp(),
+            "100",
+            "Zelda BOTW")
+
+        result = self.playtime_statistics.daily_statistics_for_period(
+            now.date(), now.date())
+        self.assertEqual(result.data[0].total, 0)
+        self.assertEqual(
+            self.playtime_statistics.per_game_overall_statistic(), [])
+
+    def test_should_keep_known_game_name_when_name_is_missing(self):
+        now = datetime(2022, 1, 1, 9, 0)
+        self.time_tracking.add_time(
+            now.timestamp(),
+            (now + timedelta(hours=1)).timestamp(),
+            "100",
+            "Zelda BOTW")
+        self.time_tracking.add_time(
+            (now + timedelta(hours=2)).timestamp(),
+            (now + timedelta(hours=3)).timestamp(),
+            "100",
+            "")
+
+        result = self.playtime_statistics.per_game_overall_statistic()
+        self.assertEqual(result[0]["game"]["name"], "Zelda BOTW")
+        self.assertEqual(result[0]["time"], 7200)
+
 
 if __name__ == '__main__':
     unittest.main()

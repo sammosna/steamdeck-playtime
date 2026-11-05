@@ -54,7 +54,7 @@ restart_plugin_loader:
 	ssh deck@$(DECK_IP) -p $(DECK_PORT) $(DECK_SSH_KEY) 'echo '$(DECK_PASS)' | sudo -S systemctl restart plugin_loader.service'
 
 verify: 
-	python3 -m unittest discover -s ./python -p '*_test.py'
+	python3 -m unittest discover -s ./defaults/python -t ./defaults -p '*_test.py'
 	node 'node_modules/jest/bin/jest.js' ./test --silent
 
 
