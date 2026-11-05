@@ -17,6 +17,12 @@ class GameTimeDto:
 
 
 @dataclass
+class GameDto:
+    game_id: str
+    game_name: str
+
+
+@dataclass
 class DailyGameTimeDto:
     date: str
     game_id: str
@@ -72,6 +78,31 @@ class Dao:
     ) -> List[DailyGameTimeDto]:
         with self._db.transactional() as connection:
             return self._fetch_per_day_time_report(connection, begin, end)
+
+    def set_game_hidden(self, game_id: str, hidden: bool) -> None:
+        with self._db.transactional() as connection:
+            if hidden:
+                connection.execute(
+                    "INSERT OR IGNORE INTO hidden_game (game_id) VALUES (?)",
+                    (game_id,)
+                )
+            else:
+                connection.execute(
+                    "DELETE FROM hidden_game WHERE game_id = ?", (game_id,)
+                )
+
+    def fetch_hidden_games(self) -> List[GameDto]:
+        with self._db.transactional() as connection:
+            connection.row_factory = lambda c, row: GameDto(
+                game_id=row[0], game_name=row[1])
+            return connection.execute(
+                """
+                    SELECT hg.game_id, gd.name
+                    FROM hidden_game hg
+                            LEFT JOIN game_dict gd ON hg.game_id = gd.game_id
+                    ORDER BY gd.name
+                """
+            ).fetchall()
 
     def is_there_is_data_before(
         self, date: type[datetime.datetime]

@@ -6,10 +6,9 @@ import * as ReactDOM from 'react-dom'
 ;(window as any).SP_REACT = React
 ;(window as any).SteamClient = {
     Storage: {
-        // ChartStyle.PIE_AND_BARS = 0, so the doughnut is visible while developing
         GetJSON: async (key: string) =>
             localStorage.getItem(key) ??
-            JSON.stringify({ gameChartStyle: 0, reminderToTakeBreaksInterval: -1 }),
+            JSON.stringify({ reminderToTakeBreaksInterval: -1 }),
         SetObject: async (key: string, value: unknown) =>
             localStorage.setItem(key, JSON.stringify(value)),
     },

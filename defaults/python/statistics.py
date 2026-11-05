@@ -60,6 +60,14 @@ class Statistics:
             })
         return result
 
+    def hidden_games(self) -> List[Game]:
+        """Games the user chose to hide from the dashboard (tracking is unaffected)."""
+        return [Game(g.game_id, g.game_name or "")
+                for g in self.dao.fetch_hidden_games()]
+
+    def set_game_hidden(self, game_id: str, hidden: bool) -> None:
+        self.dao.set_game_hidden(game_id, hidden)
+
     def _group_by_day(self, rows: List[DailyGameTimeDto]) -> Dict[str, List[DailyGameTimeDto]]:
         grouped: Dict[str, List[DailyGameTimeDto]] = {}
         for it in rows:

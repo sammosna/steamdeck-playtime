@@ -309,6 +309,26 @@ class TestPlayTime(AbstractDatabaseTest):
         self.assertEqual(result[0]["game"]["name"], "Zelda BOTW")
         self.assertEqual(result[0]["time"], 7200)
 
+    def test_hidden_game_is_persisted_and_still_tracked(self):
+        now = datetime(2022, 1, 1, 9, 0)
+        self.time_tracking.add_time(
+            now.timestamp(), (now + timedelta(hours=1)).timestamp(), "100", "Zelda BOTW")
+        self.playtime_statistics.set_game_hidden("100", True)
+        self.playtime_statistics.set_game_hidden("100", True)
+        self.time_tracking.add_time(
+            (now + timedelta(hours=2)).timestamp(),
+            (now + timedelta(hours=3)).timestamp(), "100", "Zelda BOTW")
+
+        # a fresh instance on the same database sees the filter
+        reloaded = Statistics(Dao(self.database))
+        self.assertEqual([dataclasses.asdict(g) for g in reloaded.hidden_games()],
+                         [{"id": "100", "name": "Zelda BOTW"}])
+        self.assertEqual(
+            reloaded.per_game_overall_statistic()[0]["time"], 7200)
+
+        reloaded.set_game_hidden("100", False)
+        self.assertEqual(reloaded.hidden_games(), [])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -33,6 +33,10 @@ class TestDbMigration(AbstractDatabaseTest):
                 (1, 'duration', 'INT', 0, None, 0, 0)
             ]
         )
+        self.assertEqual(
+            self._get_table_meta('hidden_game'),
+            [(0, 'game_id', 'TEXT', 0, None, 1, 0)]
+        )
         # TODO Check indexes as well
 
     def _get_table_meta(self, table: str):
@@ -53,3 +57,4 @@ class TestDbMigration(AbstractDatabaseTest):
         with sqlite3.connect(self.database_file) as connection:
             versions = connection.execute("SELECT id FROM migration").fetchall()
         self.assertEqual(versions, [(999999,)])
+        self.assertEqual(len(self._get_table_meta('hidden_game')), 1)

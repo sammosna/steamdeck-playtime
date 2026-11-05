@@ -1,6 +1,6 @@
 import { endOfMonth, endOfWeek, startOfMonth, startOfWeek } from '../utils'
 import { Backend } from './backend'
-import { DailyStatistics, GameWithTime } from './model'
+import { DailyStatistics, Game, GameWithTime } from './model'
 
 export interface Interval {
     start: Date
@@ -66,6 +66,14 @@ export class Reports {
 
     public async allTimeDailyStatistics(): Promise<DailyStatistics[]> {
         return await this.backend.fetchAllTimeDailyStatistics()
+    }
+
+    public async hiddenGames(): Promise<Game[]> {
+        return await this.backend.fetchHiddenGames()
+    }
+
+    public async setGameHidden(game: Game, hidden: boolean): Promise<boolean> {
+        return await this.backend.setGameHidden(game.id, hidden)
     }
 
     public async overallStatistics(): Promise<GameWithTime[]> {

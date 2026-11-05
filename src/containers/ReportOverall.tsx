@@ -7,12 +7,18 @@ import { AllTimeInsights } from '../components/statistics/AllTimeInsights'
 import { BarsChart } from '../components/statistics/BarsChart'
 import { gameRowsFromTotals } from '../app/insights'
 import { computeAllTimeInsights } from '../app/allTimeInsights'
+import { excludeHiddenFromDays, excludeHiddenFromTotals } from '../app/hiddenGames'
+import { HiddenGames } from '../components/statistics/HiddenGames'
+import { useHiddenGames } from './useHiddenGames'
 import { report_stack } from '../styles'
 
 export const ReportOverall: VFC = () => {
     const { reports } = useLocator()
-    const [games, setGames] = useState<GameWithTime[]>([])
-    const [days, setDays] = useState<DailyStatistics[]>([])
+    const [allGames, setGames] = useState<GameWithTime[]>([])
+    const [allDays, setDays] = useState<DailyStatistics[]>([])
+    const { hidden, hiddenIds, hide, show } = useHiddenGames()
+    const games = useMemo(() => excludeHiddenFromTotals(allGames, hiddenIds), [allGames, hiddenIds])
+    const days = useMemo(() => excludeHiddenFromDays(allDays, hiddenIds), [allDays, hiddenIds])
     const [isLoading, setLoading] = useState<Boolean>(false)
 
     useEffect(() => {
@@ -64,7 +70,8 @@ export const ReportOverall: VFC = () => {
                     />
                 </>
             )}
-            <GamesTable rows={gameRowsFromTotals(games)} defaultExpanded />
+            <GamesTable rows={gameRowsFromTotals(games)} defaultExpanded onHide={hide} />
+            <HiddenGames games={hidden} onShow={show} />
         </div>
     )
 }

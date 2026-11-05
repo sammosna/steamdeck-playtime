@@ -7,7 +7,7 @@ import {
     ButtonItem,
 } from 'decky-frontend-lib'
 import { useEffect, useState, VFC } from 'react'
-import { ChartStyle, DEFAULTS, PlayTimeSettings } from '../app/settings'
+import { DEFAULTS, PlayTimeSettings } from '../app/settings'
 import { MANUALLY_ADJUST_TIME, navigateToPage } from './navigation'
 import { useLocator } from '../locator'
 import { Tab } from '../components/Tab'
@@ -38,29 +38,6 @@ export const GeneralSettings: VFC<{}> = () => {
         <div>
             {loaded && (
                 <div>
-                    <PanelSection title="Appearance">
-                        <PanelSectionRow>
-                            <Field label="Game charts type">
-                                <Dropdown
-                                    selectedOption={current?.gameChartStyle}
-                                    rgOptions={[
-                                        {
-                                            label: 'Bar charts',
-                                            data: ChartStyle.BAR,
-                                        },
-                                        {
-                                            label: 'Bar and Pie charts',
-                                            data: ChartStyle.PIE_AND_BARS,
-                                        },
-                                    ]}
-                                    onChange={(v) => {
-                                        current.gameChartStyle = v.data
-                                        updateSettings()
-                                    }}
-                                ></Dropdown>
-                            </Field>
-                        </PanelSectionRow>
-                    </PanelSection>
                     <PanelSection title="Notifications">
                         <PanelSectionRow>
                             <Field label="Remind me to take breaks">

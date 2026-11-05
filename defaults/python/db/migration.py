@@ -90,3 +90,12 @@ class DbMigration:
     def migrate(self):
         for migration in _migrations:
             self._migration(migration)
+        self._ensure_hidden_game_table()
+
+    def _ensure_hidden_game_table(self):
+        # Not a numbered migration: databases touched by other plugin versions
+        # already use ids beyond 4, so a numbered step could be skipped there.
+        with self.db.transactional() as con:
+            con.execute(
+                "CREATE TABLE IF NOT EXISTS hidden_game (game_id TEXT PRIMARY KEY)"
+            )

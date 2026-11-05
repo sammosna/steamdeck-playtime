@@ -89,6 +89,20 @@ class Plugin:
         except Exception:
             logger.exception("Unhandled exception")
 
+    async def hidden_games(self):
+        try:
+            return [dataclasses.asdict(game)
+                    for game in self.statistics.hidden_games()]
+        except Exception:
+            logger.exception("Unhandled exception")
+
+    async def set_game_hidden(self, game_id: str, hidden: bool):
+        try:
+            self.statistics.set_game_hidden(game_id, hidden)
+            return True
+        except Exception:
+            logger.exception("Unhandled exception")
+
     async def per_game_overall_statistics(self):
         try:
             return self.statistics.per_game_overall_statistic()

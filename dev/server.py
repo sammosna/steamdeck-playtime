@@ -1,4 +1,4 @@
-"""Read-only dev backend: serves the plugin's statistics API from a copy of dev/storage.db.
+"""Dev backend: serves the plugin's statistics API from a copy of dev/storage.db.
 
 Mirrors the `Plugin` methods in main.py that the report pages call. Run through
 `pnpm dev`, which starts it next to Vite and proxies /api to it.
@@ -34,6 +34,8 @@ METHODS = {
             parse_date(a["start_date"]), parse_date(a["end_date"]))),
     "all_time_daily_statistics": lambda a: [
         dataclasses.asdict(day) for day in statistics.all_time_daily_statistics()],
+    "hidden_games": lambda a: [dataclasses.asdict(g) for g in statistics.hidden_games()],
+    "set_game_hidden": lambda a: statistics.set_game_hidden(a["game_id"], a["hidden"]) or True,
     "per_game_overall_statistics": lambda a: statistics.per_game_overall_statistic(),
 }
 
@@ -44,7 +46,7 @@ class Handler(BaseHTTPRequestHandler):
         args = json.loads(self.rfile.read(int(self.headers["Content-Length"])) or b"{}")
         if method in METHODS:
             body = {"success": True, "result": METHODS[method](args)}
-        else:  # writes are intentionally not supported in dev
+        else:  # time tracking writes are intentionally not supported in dev
             body = {"success": False, "result": f"{method} is not available in dev"}
         payload = json.dumps(body).encode()
         self.send_response(200)

@@ -2,6 +2,7 @@ import { CSSProperties, FC, ReactNode, useState } from 'react'
 import moment from 'moment'
 import { DialogButton } from 'decky-frontend-lib'
 import { GameRow } from '../../app/insights'
+import { Game } from '../../app/model'
 import { humanReadableTime } from '../../app/formatters'
 import { Card } from '../Card'
 import { RADIUS_SMALL } from '../../styles'
@@ -38,7 +39,12 @@ function change(value: GameRow['change']): ReactNode {
 }
 
 /** Collapsible per game table. Period columns are shown when the rows carry them. */
-export const GamesTable: FC<{ rows: GameRow[]; defaultExpanded?: boolean }> = (props) => {
+export const GamesTable: FC<{
+    rows: GameRow[]
+    defaultExpanded?: boolean
+    /** When set, each row gets a button to hide that game from the dashboard */
+    onHide?: (game: Game) => void
+}> = (props) => {
     const [expanded, setExpanded] = useState<boolean>(props.defaultExpanded ?? false)
     const isPeriod = props.rows.some((it) => it.activeDays !== undefined)
     const hasChange = props.rows.some((it) => it.change !== undefined)
@@ -48,6 +54,9 @@ export const GamesTable: FC<{ rows: GameRow[]; defaultExpanded?: boolean }> = (p
     }
     if (hasChange) {
         header.push('vs prev.')
+    }
+    if (props.onHide) {
+        header.push('')
     }
 
     return (
@@ -116,6 +125,22 @@ export const GamesTable: FC<{ rows: GameRow[]; defaultExpanded?: boolean }> = (p
                                         </>
                                     )}
                                     {hasChange && <td style={cell}>{change(row.change)}</td>}
+                                    {props.onHide && (
+                                        <td style={cell}>
+                                            <DialogButton
+                                                style={{
+                                                    width: 'auto',
+                                                    minWidth: 0,
+                                                    padding: '4px 12px',
+                                                    fontSize: '12px',
+                                                    borderRadius: RADIUS_SMALL,
+                                                }}
+                                                onClick={() => props.onHide!(row.game)}
+                                            >
+                                                Hide
+                                            </DialogButton>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
                         </tbody>

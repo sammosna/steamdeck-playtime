@@ -6,18 +6,11 @@ declare global {
 }
 
 export interface PlayTimeSettings {
-    gameChartStyle: ChartStyle
     reminderToTakeBreaksInterval: number
-}
-
-export enum ChartStyle {
-    PIE_AND_BARS,
-    BAR,
 }
 
 let PLAY_TIME_SETTINGS_KEY = 'decky-loader-SDH-Playtime'
 export let DEFAULTS: PlayTimeSettings = {
-    gameChartStyle: ChartStyle.BAR,
     reminderToTakeBreaksInterval: -1,
 }
 

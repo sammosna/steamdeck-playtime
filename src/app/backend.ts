@@ -105,6 +105,32 @@ export class Backend {
         return response.result as DailyStatistics[]
     }
 
+    /** Games hidden from the dashboard. They are still tracked. */
+    async fetchHiddenGames(): Promise<Game[]> {
+        const response = await this.serverApi.callPluginMethod<{}, Game[]>('hidden_games', {})
+        if (!response.success) {
+            this.errorOnBackend(
+                "Can't fetch hidden games, because of backend error (hidden_games)"
+            )
+            return []
+        }
+        return response.result as Game[]
+    }
+
+    async setGameHidden(gameId: string, hidden: boolean): Promise<boolean> {
+        const response = await this.serverApi.callPluginMethod<
+            { game_id: string; hidden: boolean },
+            boolean
+        >('set_game_hidden', { game_id: gameId, hidden })
+        if (!response.success) {
+            this.errorOnBackend(
+                "Can't update hidden games, because of backend error (set_game_hidden)"
+            )
+            return false
+        }
+        return true
+    }
+
     async fetchPerGameOverallStatistics(): Promise<GameWithTime[]> {
         const response = await this.serverApi.callPluginMethod<{}, GameWithTime[]>(
             'per_game_overall_statistics',
