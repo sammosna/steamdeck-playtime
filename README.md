@@ -1,85 +1,72 @@
-# Project Archive Notice
-
-This project is being archived due to time constraints that have prevented me from maintaining it, despite my strong interest and enthusiasm for its development. There are several features and enhancements that I had hoped to implement, but unfortunately, I am unable to continue working on them at this time.
-I encourage anyone interested in the project to explore the existing codebase and contribute if they wish. Thank you for your understanding and support.
-
 # PlayTime
 
 ![PlayTime Logo](assets/image.png)
 
-PlayTime is a plugin for the SteamDeck gaming console, designed to track the amount of time you spend playing games. It provides weekly and monthly reports, as well as an overall summary of your gaming time. In addition, it offers data migration from the SteamLessTimes and MetaDeck plugins. PlayTime also allows you to manually adjust your overall playtime through the settings.
+PlayTime is a [Decky Loader](https://decky.xyz) plugin for the Steam Deck that tracks how long you play Steam and non-Steam games and turns it into reports, charts and insights.
+
+It is a fork of [SDH-PlayTime](https://github.com/ma3a/SDH-PlayTime) by ma3a, with a new chart engine, richer insights and a redesigned dashboard.
+
+## Features
+
+**Dashboard** (open it from the PlayTime button at the bottom right of the library home, or from the Decky menu)
+
+- **All Time**: total play time, recent form, averages per day / week / month, records (best day, week and month, longest streak, marathon days), habits, a calendar heatmap and charts by month and by weekday.
+- **By Month** and **By Week**: stacked daily bars per game with the daily average drawn as a line, share of time by game, insights compared with the previous period and a calendar heatmap. Use **L2 / R2** to move to the previous / next period without losing focus.
+- **Games table**: a collapsible table with play time, share, days played, average per day, best day, last played and change versus the previous period.
+- **Game page**: select a game in any table to see its own insights (share of your library, rank, first and last played, averages, records, streaks) and charts for the last 30 days, by month and by weekday. Press **B** to go back.
+- **Hidden games**: hide games or apps you don't want in the dashboard with **Hide** and bring them back from the *Hidden games* list. Hiding only affects the dashboard, play time keeps being recorded. The filter is stored in the plugin database.
+
+**Tracking and settings**
+
+- Tracks Steam and non-Steam games, including suspend and resume.
+- Optional reminder to take a break after a configurable time of continuous play.
+- Manual correction of the overall play time of a game.
+- Shows your tracked play time on game pages and in the library.
+
+All data stays on your Deck, in a local SQLite database in the plugin data directory.
 
 ## Installation
 
-The best way to get plugin is to use official Decky Plugin Store (https://plugins.deckbrew.xyz/).
+Download the latest release zip, copy it to the Deck and install it from Decky Loader (*Settings → Developer → Install plugin from ZIP*, with developer mode on). To build it yourself, see below.
 
-To install PlayTime manually:
+## Development
 
-1. Go to the [PlayTime GitHub repository](https://github.com/your-username/PlayTime).
-2. Download the latest release package (ZIP format).
-3. Copy the zip file to SteamDeck and install it from Decky loader.
+Requirements: Node.js, [pnpm](https://pnpm.io) 8.6 or newer, Python 3.
 
-Alternatively, you can build PlayTime from source by following these steps:
+```shell
+pnpm i
+pnpm build      # builds dist/index.js
+make zip        # builds build/<folder>-<version>.zip, ready to install
+make verify     # Python and Jest tests
+```
 
-1. Clone the PlayTime repository:
-   ```shell
-   git clone https://github.com/ma3a/SDH-PlayTime.git
-   ```
+`make deploy` copies the plugin to the Deck over SSH. It reads the connection settings (`deckip`, `deckport`, `deckpass`, `deckkey`, `deckdir`) from `.vscode/settings.json`, which is git-ignored.
 
-2. Navigate to the project directory:
-   ```shell
-   cd SDH-PlayTime
-   ```
+### Local dev server
 
-3. If you want to deploy the plugin directly to the Deck, use the following command instead:
-   ```shell
-   make deploy
-   ```
+Work on the dashboard in a browser, without a Deck:
 
-   Make sure your SteamDeck is connected and properly set up for development.
+1. Copy a `storage.db` from your Deck to `dev/storage.db` (git-ignored, it contains personal data).
+2. Run `pnpm dev` and open http://localhost:5173.
 
-## Development Requirements
+The dev backend serves the statistics from a throw-away copy of that database. Decky UI components are replaced by small browser stand-ins, so the layout is representative but focus and controller navigation are not.
 
-To contribute or modify PlayTime, ensure you have the following requirements installed:
+### Project layout
 
-* pnpm version 8.6.x or higher
-
-You can install `pnpm` by following the instructions in the [pnpm GitHub repository](https://github.com/pnpm/pnpm).
-
-## Usage
-
-Once PlayTime is installed on your SteamDeck, it will automatically start tracking your game playtime. You can access the plugin by launching the Decky Plugin Loader and selecting PlayTime from the list of installed plugins.
-
-The main features of PlayTime include:
-
-* Weekly and monthly reports: Get insights into your gaming habits over different time periods.
-* Overall summary: View your total playtime across all games.
-* Data migration: Import your playtime data from other plugins, such as SteamLessTimes and MetaDeck.
-* Manual playtime adjustment: If needed, you can manually change your overall playtime through the settings.
+- `src/`: frontend (TypeScript, React, Chart.js)
+- `main.py`, `defaults/python/`: backend (SQLite) and its tests
+- `test/`: Jest tests for the frontend logic
+- `dev/`: local dev server
 
 ## Contributing
 
-Contributions to PlayTime are welcome! If you would like to contribute, please follow these steps:
+Issues and pull requests are welcome. Please run `make verify` and `npx tsc --noEmit` before submitting.
 
-1. Fork the PlayTime repository.
-2. Create a new branch for your feature or bug fix.
-3. Make the necessary changes in your branch.
-4. Commit your changes and push them to your fork.
-5. Submit a pull request to the main PlayTime repository.
+## Credits
 
-Please ensure your code follows the project's coding conventions and includes appropriate tests.
+- [ma3a](https://github.com/ma3a), original author of SDH-PlayTime, and Witherking25
+- The [Decky Loader](https://decky.xyz) project
 
-## Acknowledgements
+## License
 
-We would like to thank the contributors and supporters of PlayTime for their valuable contributions and feedback.
-
-Special thanks to the Decky Plugin Loader project for providing the infrastructure and support for developing plugins on the SteamDeck console.
-
-## Contact
-
-If you have any questions, suggestions, or need assistance with PlayTime, feel free to contact us at 
-Discord [PlayTime support thread](https://discord.com/channels/960281551428522045/1087800823846813716) in official [Decky Loader 
-Discord](https://discord.com/invite/U88fbeHyzt) server
-We appreciate your feedback!
-
-Happy gaming with PlayTime!
+BSD 3-Clause, see [LICENSE](LICENSE).
