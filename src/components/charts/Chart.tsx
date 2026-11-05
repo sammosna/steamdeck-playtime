@@ -8,10 +8,7 @@ import {
     ChartConfiguration,
     DoughnutController,
     Legend,
-    LineController,
-    LineElement,
     LinearScale,
-    PointElement,
     Tooltip,
 } from 'chart.js'
 
@@ -22,10 +19,7 @@ ChartJS.register(
     CategoryScale,
     DoughnutController,
     Legend,
-    LineController,
-    LineElement,
     LinearScale,
-    PointElement,
     Tooltip
 )
 ChartJS.defaults.color = '#c9d1d9'

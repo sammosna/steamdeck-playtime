@@ -10,7 +10,7 @@ import { Card } from '../Card'
 
 const minutesToText = (minutes: number) => humanReadableTime(minutes * 60, true)
 
-/** Stacked bars per day (one segment per game) with the period's daily average as a line. */
+/** Stacked bars per day (one segment per game) with a line across the chart at the period's daily average. */
 export const DailyChart: FC<{ statistics: DailyStatistics[]; labels: 'weekday' | 'day'; title: string }> = (
     props
 ) => {
@@ -37,15 +37,6 @@ export const DailyChart: FC<{ statistics: DailyStatistics[]; labels: 'weekday' |
                         stack: 'time',
                         data: props.statistics.map((day) => timeInSeries(day, s) / 60),
                     })),
-                    {
-                        type: 'line' as const,
-                        label: `Avg ${minutesToText(average)}`,
-                        data: props.statistics.map(() => average),
-                        borderColor: '#ffffff',
-                        borderDash: [6, 4],
-                        borderWidth: 1.5,
-                        pointRadius: 0,
-                    },
                 ],
             },
             options: {
@@ -67,6 +58,37 @@ export const DailyChart: FC<{ statistics: DailyStatistics[]; labels: 'weekday' |
                     },
                 },
             },
+            plugins: [
+                {
+                    id: 'averageLine',
+                    afterDatasetsDraw: (chart) => {
+                        const { ctx, chartArea, scales } = chart
+                        if (average <= 0) {
+                            return
+                        }
+                        const y = scales.y.getPixelForValue(average)
+                        ctx.save()
+                        ctx.strokeStyle = '#ffffff'
+                        ctx.lineWidth = 1.5
+                        ctx.setLineDash([6, 4])
+                        ctx.beginPath()
+                        ctx.moveTo(chartArea.left, y)
+                        ctx.lineTo(chartArea.right, y)
+                        ctx.stroke()
+                        ctx.setLineDash([])
+                        ctx.fillStyle = '#ffffff'
+                        ctx.font = '600 11px sans-serif'
+                        ctx.textAlign = 'right'
+                        ctx.textBaseline = 'bottom'
+                        ctx.fillText(
+                            `Avg ${minutesToText(average)}`,
+                            chartArea.right - 4,
+                            y - 4
+                        )
+                        ctx.restore()
+                    },
+                },
+            ],
         }
     }, [props.statistics, props.labels])
 
