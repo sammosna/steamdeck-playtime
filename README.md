@@ -4,7 +4,9 @@
 
 PlayTime is a [Decky Loader](https://decky.xyz) plugin for the Steam Deck that tracks how long you play Steam and non-Steam games and turns it into reports, charts and insights.
 
-It is a fork of [SDH-PlayTime](https://github.com/ma3a/SDH-PlayTime) by ma3a, with a new chart engine, richer insights and a redesigned dashboard.
+## Origin
+
+This project started from [SDH-PlayTime](https://github.com/ma3a/SDH-PlayTime) by ma3a, which has been archived and is no longer maintained. I took the archived code as a base and added a lot on top of it: the charts were rebuilt on Chart.js, and I added insights at every level, a per-game table and page, a calendar heatmap, hidden games, controller shortcuts and a redesigned, more modern dashboard. The tracking engine and the original idea are still ma3a's work, see [Credits](#credits).
 
 ## Features
 
@@ -24,6 +26,26 @@ It is a fork of [SDH-PlayTime](https://github.com/ma3a/SDH-PlayTime) by ma3a, wi
 - Shows your tracked play time on game pages and in the library.
 
 All data stays on your Deck, in a local SQLite database in the plugin data directory.
+
+## Screenshots
+
+Captured from the local dev server (see [Development](#development)), so the Steam interface around the dashboard is not shown.
+
+**All Time**
+
+![All Time](docs/screenshots/all-time.png)
+
+![All Time charts](docs/screenshots/all-time-charts.png)
+
+**By Week** and **By Month**
+
+![By Week](docs/screenshots/by-week.png)
+
+![By Month](docs/screenshots/by-month.png)
+
+**Game page**
+
+![Game page](docs/screenshots/game.png)
 
 ## Installation
 
