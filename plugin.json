@@ -1,6 +1,6 @@
 {
-    "name": "PlayTime",
-    "author": "ma3a, Witherking25",
+    "name": "PlayTime Fork",
+    "author": "ma3a, Witherking25, sammosna",
     "flags": [],
     "publish": {
         "tags": ["utility", "time-tracking", "playtime"],

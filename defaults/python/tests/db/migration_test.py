@@ -41,18 +41,15 @@ class TestDbMigration(AbstractDatabaseTest):
                 f"PRAGMA table_xinfo({table})"
             ).fetchall()
 
-    def test_should_fail_migration_if_application_older_then_database(self):
+    def test_should_accept_database_migrated_by_newer_version(self):
         with sqlite3.connect(self.database_file) as connection:
             connection.execute(
                 "CREATE TABLE IF NOT EXISTS migration (id INT PRIMARY KEY)"
             )
             connection.execute(
-                "INSERT INTO MIGRATION (id) VALUES (999999)"
+                "INSERT INTO migration (id) VALUES (999999)"
             )
-        try:
-            self.get_migration().migrate()
-        except Exception as e:
-            self.assertEqual(
-                str(e),
-                "Database have been updated with latest version. Please update plugin"
-            )
+        self.get_migration().migrate()
+        with sqlite3.connect(self.database_file) as connection:
+            versions = connection.execute("SELECT id FROM migration").fetchall()
+        self.assertEqual(versions, [(999999,)])

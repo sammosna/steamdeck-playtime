@@ -75,12 +75,9 @@ class DbMigration:
 
     def _migration(self, migration: Migration):
         version = self._current_migration_version()
-        latest_version_in_migration = max(_migrations, key=lambda m: m.version).version
-
-        if (latest_version_in_migration < version):
-            raise Exception(
-                "Database have been updated with latest version. Please update plugin")
-
+        # A database upgraded by a newer plugin version is still readable: the tables
+        # used here (play_time, overall_time, game_dict) are unchanged by later
+        # migrations, which only add tables. So just don't apply anything older.
         if migration.version > version:
             with self.db.transactional() as con:
                 for stm in migration.statements:

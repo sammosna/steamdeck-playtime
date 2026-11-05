@@ -67,25 +67,37 @@ class SteamEventMiddleware implements Mountable {
             )
         )
 
-        this.activeHooks.push(
-            SteamClient.System.RegisterForOnSuspendRequest(async () => {
-                this.eventBus.emit({
-                    type: 'Suspended',
-                    createdAt: this.clock.getTimeMs(),
-                    game: await this.fetchGameInfo(),
-                })
+        // Newer Steam clients dropped System.RegisterForOnSuspendRequest/OnResumeFromSuspend
+        // and report suspend/resume as progress callbacks on SteamClient.User instead.
+        // The progress callback fires repeatedly, so emit only on the first call per cycle.
+        const user = SteamClient.User
+        const system = SteamClient.System
+        let suspended = false
+        const onSuspend = async () => {
+            if (suspended) return
+            suspended = true
+            this.eventBus.emit({
+                type: 'Suspended',
+                createdAt: this.clock.getTimeMs(),
+                game: await this.fetchGameInfo(),
             })
-        )
-
-        this.activeHooks.push(
-            SteamClient.System.RegisterForOnResumeFromSuspend(async () => {
-                this.eventBus.emit({
-                    type: 'ResumeFromSuspend',
-                    createdAt: this.clock.getTimeMs(),
-                    game: await this.fetchGameInfo(),
-                })
+        }
+        const onResume = async () => {
+            if (!suspended) return
+            suspended = false
+            this.eventBus.emit({
+                type: 'ResumeFromSuspend',
+                createdAt: this.clock.getTimeMs(),
+                game: await this.fetchGameInfo(),
             })
-        )
+        }
+        if (system.RegisterForOnSuspendRequest && system.RegisterForOnResumeFromSuspend) {
+            this.activeHooks.push(system.RegisterForOnSuspendRequest(onSuspend))
+            this.activeHooks.push(system.RegisterForOnResumeFromSuspend(onResume))
+        } else {
+            this.activeHooks.push(user.RegisterForPrepareForSystemSuspendProgress(onSuspend))
+            this.activeHooks.push(user.RegisterForResumeSuspendedGamesProgress(onResume))
+        }
     }
 
     private async awaitGameInfo(): Promise<Game> {

@@ -21,7 +21,7 @@ import { Reports } from './app/reports'
 import { TimeManipulation } from './app/time-manipulation'
 import { ManuallyAdjustTimePage } from './pages/ManuallyAdjustTimePage'
 import { SteamPatches } from './steam-ui/SteamPatches'
-import { patchAppPage } from './steam-ui/patches'
+import { patchAppPage, patchLibraryHome } from './steam-ui/patches'
 import { createCachedLastTwoWeeksPlayTimes, createCachedPlayTimes } from './cachables'
 
 declare global {
@@ -168,6 +168,7 @@ function createMountables(
         },
     })
     mounts.push(patchAppPage(serverApi, cachedPlayTimes))
+    mounts.push(patchLibraryHome(serverApi))
     mounts.push(new SteamPatches(cachedPlayTimes, cachedLastTwoWeeksPlayTimes))
     return mounts
 }
