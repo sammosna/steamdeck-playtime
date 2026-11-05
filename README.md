@@ -1,7 +1,5 @@
 # PlayTime
 
-![PlayTime Logo](assets/image.png)
-
 PlayTime is a [Decky Loader](https://decky.xyz) plugin for the Steam Deck that tracks how long you play Steam and non-Steam games and turns it into reports, charts and insights.
 
 ## Origin
