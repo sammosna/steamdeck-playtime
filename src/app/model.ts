@@ -8,7 +8,6 @@ export {
     AppAchievement,
     AppLanguages,
     AppStore,
-    convertDailyStatisticsToGameWithTime,
     AppInfoStore,
 }
 
@@ -26,21 +25,6 @@ interface DailyStatistics {
     date: string
     games: GameWithTime[]
     total: number
-}
-
-function convertDailyStatisticsToGameWithTime(data: DailyStatistics[]): GameWithTime[] {
-    let result: GameWithTime[] = []
-    data.forEach((day) => {
-        day.games.forEach((game) => {
-            let found = result.find((g) => g.game.id === game.game.id)
-            if (found) {
-                found.time += game.time
-            } else {
-                result.push({ ...game })
-            }
-        })
-    })
-    return result
 }
 
 interface AppOverview {

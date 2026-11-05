@@ -1,7 +1,9 @@
 import { VFC, useEffect, useState } from 'react'
 import { GameWithTime } from '../app/model'
 import { useLocator } from '../locator'
-import { GamesTimeBarView } from '../components/statistics/GamesTimeBarView'
+import { GamesTable } from '../components/statistics/GamesTable'
+import { gameRowsFromTotals } from '../app/insights'
+import { report_stack } from '../styles'
 
 export const ReportOverall: VFC = () => {
     const { reports } = useLocator()
@@ -23,8 +25,8 @@ export const ReportOverall: VFC = () => {
         return <div>Error while loading data</div>
     }
     return (
-        <div>
-            <GamesTimeBarView data={data} />
+        <div style={report_stack}>
+            <GamesTable rows={gameRowsFromTotals(data)} defaultExpanded />
         </div>
     )
 }

@@ -4,7 +4,7 @@ import { DailyStatistics } from '../../app/model'
 import { humanReadableTime } from '../../app/formatters'
 import { Chart } from '../charts/Chart'
 import { buildSeries } from '../charts/gameSeries'
-import { FocusableExt } from '../FocusableExt'
+import { Card } from '../Card'
 
 /** Share of each game in the period, with the total time in the center. */
 export const GamesDoughnut: FC<{ statistics: DailyStatistics[] }> = (props) => {
@@ -20,13 +20,15 @@ export const GamesDoughnut: FC<{ statistics: DailyStatistics[] }> = (props) => {
                         data: series.map((s) => s.time),
                         backgroundColor: series.map((s) => s.color),
                         borderWidth: 0,
+                        borderRadius: 6,
+                        spacing: 2,
                     },
                 ],
             },
             options: {
                 cutout: '62%',
                 plugins: {
-                    legend: { position: 'right', labels: { boxWidth: 12 } },
+                    legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'rectRounded', boxWidth: 8, padding: 14 } },
                     tooltip: {
                         callbacks: {
                             label: (ctx) => {
@@ -60,9 +62,14 @@ export const GamesDoughnut: FC<{ statistics: DailyStatistics[] }> = (props) => {
         }
     }, [props.statistics])
 
+    const hasData = props.statistics.some((it) => it.total > 0)
     return (
-        <FocusableExt>
-            <Chart config={config} height={220} />
-        </FocusableExt>
+        <Card title="Share by game">
+            {hasData ? (
+                <Chart config={config} height={220} />
+            ) : (
+                <div style={{ opacity: 0.6 }}>No games played in this period</div>
+            )}
+        </Card>
     )
 }

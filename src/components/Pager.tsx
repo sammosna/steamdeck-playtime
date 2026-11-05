@@ -1,5 +1,5 @@
 import { DialogButton, Focusable } from 'decky-frontend-lib'
-import { focus_panel_no_padding, pager_container } from '../styles'
+import { RADIUS_SMALL, focus_panel_no_padding, pager_container } from '../styles'
 
 export const Pager: React.FC<{
     currentText: string
@@ -17,7 +17,8 @@ export const Pager: React.FC<{
                 style={{
                     minWidth: '0px',
                     padding: '10px 10px',
-                    width: '35px',
+                    width: '40px',
+                    borderRadius: RADIUS_SMALL,
                 }}
                 disabled={!props.hasPrev}
                 onClick={props.onPrev}
@@ -25,13 +26,14 @@ export const Pager: React.FC<{
                 &lt;
             </DialogButton>
 
-            <div className="title">{props.currentText}</div>
+            <div className="title" style={{ fontWeight: 600 }}>{props.currentText}</div>
 
             <DialogButton
                 style={{
                     minWidth: '0px',
                     padding: '10px 10px',
-                    width: '35px',
+                    width: '40px',
+                    borderRadius: RADIUS_SMALL,
                 }}
                 disabled={!props.hasNext}
                 onClick={props.onNext}

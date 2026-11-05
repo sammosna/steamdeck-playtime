@@ -30,7 +30,19 @@ export const DialogButton: FC<{
     disabled?: boolean
     onClick?: () => void
 }> = ({ children, style, disabled, onClick }) => (
-    <button style={style} disabled={disabled} onClick={onClick}>
+    <button
+        style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            color: 'inherit',
+            border: 'none',
+            borderRadius: 4,
+            font: 'inherit',
+            opacity: disabled ? 0.4 : 1,
+            ...style,
+        }}
+        disabled={disabled}
+        onClick={onClick}
+    >
         {children}
     </button>
 )
@@ -57,3 +69,8 @@ export const Tabs: FC<{
         {tabs.find((t) => t.id === activeTab)?.content}
     </div>
 )
+
+export enum GamepadButton {
+    TRIGGER_LEFT = 7,
+    TRIGGER_RIGHT = 8,
+}

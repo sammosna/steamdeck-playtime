@@ -6,12 +6,12 @@ import { humanReadableTime } from '../../app/formatters'
 import { computeInsights } from '../../app/insights'
 import { Chart } from '../charts/Chart'
 import { buildSeries, timeInSeries } from '../charts/gameSeries'
-import { FocusableExt } from '../FocusableExt'
+import { Card } from '../Card'
 
 const minutesToText = (minutes: number) => humanReadableTime(minutes * 60, true)
 
 /** Stacked bars per day (one segment per game) with the period's daily average as a line. */
-export const DailyChart: FC<{ statistics: DailyStatistics[]; labels: 'weekday' | 'day' }> = (
+export const DailyChart: FC<{ statistics: DailyStatistics[]; labels: 'weekday' | 'day'; title: string }> = (
     props
 ) => {
     const config = useMemo<ChartConfiguration>(() => {
@@ -31,6 +31,9 @@ export const DailyChart: FC<{ statistics: DailyStatistics[]; labels: 'weekday' |
                         type: 'bar' as const,
                         label: s.name,
                         backgroundColor: s.color,
+                        borderRadius: 4,
+                        borderSkipped: false,
+                        barPercentage: 0.75,
                         stack: 'time',
                         data: props.statistics.map((day) => timeInSeries(day, s) / 60),
                     })),
@@ -55,7 +58,7 @@ export const DailyChart: FC<{ statistics: DailyStatistics[]; labels: 'weekday' |
                     },
                 },
                 plugins: {
-                    legend: { position: 'bottom', labels: { boxWidth: 12 } },
+                    legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'rectRounded', boxWidth: 8, padding: 14 } },
                     tooltip: {
                         mode: 'index',
                         callbacks: {
@@ -68,8 +71,8 @@ export const DailyChart: FC<{ statistics: DailyStatistics[]; labels: 'weekday' |
     }, [props.statistics, props.labels])
 
     return (
-        <FocusableExt>
+        <Card title={props.title}>
             <Chart config={config} height={props.labels === 'weekday' ? 260 : 300} />
-        </FocusableExt>
+        </Card>
     )
 }

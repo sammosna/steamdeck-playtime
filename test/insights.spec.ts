@@ -1,5 +1,5 @@
-import { computeInsights, timePerGame } from '../src/app/insights'
-import { convertDailyStatisticsToGameWithTime, DailyStatistics } from '../src/app/model'
+import { computeInsights, gameRowsForPeriod, gameRowsFromTotals, timePerGame } from '../src/app/insights'
+import { DailyStatistics } from '../src/app/model'
 
 const a = { id: 'a', name: 'A' }
 const b = { id: 'b', name: 'B' }
@@ -51,10 +51,42 @@ describe('computeInsights', () => {
 })
 
 test('per game totals do not mutate the statistics', () => {
-    convertDailyStatisticsToGameWithTime(week)
+    gameRowsForPeriod(week)
     expect(week[0].games[0].time).toBe(3600)
     expect(timePerGame(week).map((it) => [it.game.id, it.time])).toEqual([
         ['b', 9000],
         ['a', 5400],
     ])
+})
+
+describe('gameRowsForPeriod', () => {
+    test('per game breakdown', () => {
+        const [first, second] = gameRowsForPeriod(week)
+        expect(first).toMatchObject({
+            time: 9000,
+            activeDays: 2,
+            averagePerActiveDay: 4500,
+            bestDay: { date: '2024-05-09', time: 7200 },
+            lastPlayed: '2024-05-09',
+        })
+        expect(first.game.id).toBe('b')
+        expect(first.share).toBeCloseTo(9000 / 14400)
+        expect(second.game.id).toBe('a')
+        expect(second.change).toBeUndefined()
+    })
+
+    test('change vs previous period', () => {
+        const rows = gameRowsForPeriod(week, [day('2024-04-29', [a, 2700])])
+        expect(rows.find((it) => it.game.id === 'a')?.change).toBe(1)
+        expect(rows.find((it) => it.game.id === 'b')?.change).toBe('new')
+    })
+
+    test('from totals', () => {
+        const rows = gameRowsFromTotals([
+            { game: a, time: 100 },
+            { game: b, time: 300 },
+        ])
+        expect(rows.map((it) => it.game.id)).toEqual(['b', 'a'])
+        expect(rows[0].share).toBe(0.75)
+    })
 })

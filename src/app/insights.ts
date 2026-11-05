@@ -1,5 +1,5 @@
 import moment from 'moment'
-import { DailyStatistics, Game } from './model'
+import { DailyStatistics, Game, GameWithTime } from './model'
 
 export interface GameShare {
     game: Game
@@ -23,21 +23,80 @@ export interface PeriodInsights {
     deltaVsPrevious?: number
 }
 
-/** Total time per game, sorted by time descending. */
-export function timePerGame(statistics: DailyStatistics[]): GameShare[] {
-    const byId = new Map<string, GameShare>()
+export interface GameRow {
+    game: Game
+    time: number
+    /** Share of the total time of the listed games */
+    share: number
+    /** The fields below are only known for per-day statistics */
+    activeDays?: number
+    averagePerActiveDay?: number
+    bestDay?: { date: string; time: number }
+    lastPlayed?: string
+    /** Relative change vs the previous period, 'new' if it was not played back then */
+    change?: number | 'new'
+}
+
+/** Per game breakdown of a period, sorted by time descending. */
+export function gameRowsForPeriod(
+    statistics: DailyStatistics[],
+    previous: DailyStatistics[] = []
+): GameRow[] {
+    const byId = new Map<string, GameRow>()
     for (const day of statistics) {
         for (const it of day.games) {
-            const entry = byId.get(it.game.id)
-            if (entry) {
-                entry.time += it.time
-                entry.game = it.game
-            } else {
-                byId.set(it.game.id, { game: it.game, time: it.time })
+            const row = byId.get(it.game.id) ?? {
+                game: it.game,
+                time: 0,
+                share: 0,
+                activeDays: 0,
             }
+            row.game = it.game
+            row.time += it.time
+            if (it.time > 0) {
+                row.activeDays = (row.activeDays ?? 0) + 1
+                row.lastPlayed = day.date
+                if (!row.bestDay || it.time > row.bestDay.time) {
+                    row.bestDay = { date: day.date, time: it.time }
+                }
+            }
+            byId.set(it.game.id, row)
         }
     }
-    return [...byId.values()].sort((a, b) => b.time - a.time)
+    const previousTime = new Map(
+        previous.flatMap((day) => day.games).map((it) => [it.game.id, 0] as [string, number])
+    )
+    previous
+        .flatMap((day) => day.games)
+        .forEach((it) => previousTime.set(it.game.id, previousTime.get(it.game.id)! + it.time))
+    const hasBaseline = previousTime.size > 0
+
+    const rows = [...byId.values()]
+    const total = rows.reduce((acc, it) => acc + it.time, 0)
+    rows.forEach((row) => {
+        row.share = total > 0 ? row.time / total : 0
+        row.averagePerActiveDay = row.activeDays ? row.time / row.activeDays : 0
+        const before = previousTime.get(row.game.id) ?? 0
+        if (before > 0) {
+            row.change = (row.time - before) / before
+        } else if (hasBaseline) {
+            row.change = 'new'
+        }
+    })
+    return rows.sort((a, b) => b.time - a.time)
+}
+
+/** Breakdown from plain per game totals (e.g. all time). */
+export function gameRowsFromTotals(games: GameWithTime[]): GameRow[] {
+    const total = games.reduce((acc, it) => acc + it.time, 0)
+    return games
+        .map((it) => ({ game: it.game, time: it.time, share: total > 0 ? it.time / total : 0 }))
+        .sort((a, b) => b.time - a.time)
+}
+
+/** Total time per game, sorted by time descending. */
+export function timePerGame(statistics: DailyStatistics[]): GameShare[] {
+    return gameRowsForPeriod(statistics).map(({ game, time }) => ({ game, time }))
 }
 
 export function computeInsights(
