@@ -82,6 +82,14 @@ class Plugin:
         except Exception:
             logger.exception("Unhandled exception")
 
+    async def sessions_for_period(self, start_date: str, end_date: str):
+        try:
+            return [dataclasses.asdict(session)
+                    for session in self.statistics.sessions(
+                        parse_date(start_date), parse_date(end_date))]
+        except Exception:
+            logger.exception("Unhandled exception")
+
     async def all_time_daily_statistics(self):
         try:
             return [dataclasses.asdict(day)

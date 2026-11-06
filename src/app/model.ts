@@ -2,6 +2,7 @@ export {
     Game as Game,
     GameWithTime,
     DailyStatistics,
+    Session,
     AppOverview,
     AppDetails,
     AppAchievements,
@@ -25,6 +26,14 @@ interface DailyStatistics {
     date: string
     games: GameWithTime[]
     total: number
+}
+
+/** An interval played, `start` in seconds since local midnight of `date`. */
+interface Session {
+    date: string
+    game: Game
+    start: number
+    duration: number
 }
 
 interface AppOverview {

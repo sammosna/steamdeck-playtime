@@ -26,3 +26,12 @@ class PagedDayStatistics:
     data: List[DayStatistics]
     hasPrev: bool
     hasNext: bool
+
+
+@dataclass
+class Session:
+    date: str
+    game: Game
+    # Seconds since local midnight of `date`
+    start: int
+    duration: int

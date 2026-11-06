@@ -30,6 +30,16 @@ class DailyGameTimeDto:
     time: int
 
 
+@dataclass
+class SessionDto:
+    date: str
+    game_id: str
+    game_name: str
+    # Seconds since local midnight of `date`
+    start: int
+    duration: int
+
+
 class Dao:
     def __init__(self, db: SqlLiteDb):
         self._db = db
@@ -70,6 +80,31 @@ class Dao:
                 self._save_play_time(
                     connection, create_at, delta_time, game_id, source
                 )
+
+    def fetch_sessions(self, first_day: str, last_day: str) -> List[SessionDto]:
+        """Recorded intervals starting between two days (YYYY-MM-DD, inclusive),
+        oldest first."""
+        with self._db.transactional() as connection:
+            connection.row_factory = lambda c, row: SessionDto(
+                date=row[0], game_id=row[1], game_name=row[2],
+                start=row[3], duration=row[4])
+            return connection.execute(
+                """
+                    SELECT SUBSTR(date_time, 1, 10) AS date,
+                           pt.game_id,
+                           gd.name,
+                           CAST(STRFTIME('%s', date_time) AS INT)
+                             - CAST(STRFTIME('%s', SUBSTR(date_time, 1, 10)) AS INT),
+                           duration
+                    FROM play_time pt
+                            LEFT JOIN game_dict gd ON pt.game_id = gd.game_id
+                    WHERE SUBSTR(date_time, 1, 10) BETWEEN :first_day AND :last_day
+                      AND migrated IS NULL
+                      AND duration > 0
+                    ORDER BY date_time
+                """,
+                {"first_day": first_day, "last_day": last_day}
+            ).fetchall()
 
     def fetch_per_day_time_report(
         self,

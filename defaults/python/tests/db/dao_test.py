@@ -117,3 +117,21 @@ class TestDao(AbstractDatabaseTest):
             filter(
                 lambda x: x.game_id == game_id,
                 self.dao.fetch_overall_playtime()))[0].time
+
+    def test_should_fetch_sessions_of_a_period(self):
+        self.dao.save_game_dict("1001", "Zelda BOTW")
+        self.dao.save_game_dict("1002", "DOOM")
+        self.dao.save_play_time(datetime(2023, 1, 1, 23, 0), 600, "1002")
+        self.dao.save_play_time(datetime(2023, 1, 3, 14, 30), 1800, "1001")
+        self.dao.save_play_time(datetime(2023, 1, 2, 9, 0, 30), 600, "1002")
+        self.dao.save_play_time(
+            datetime(2023, 1, 2, 12, 0), 999, "1001", "manually-changed")
+        self.dao.save_play_time(datetime(2023, 1, 4, 0, 0), 600, "1002")
+
+        result = self.dao.fetch_sessions("2023-01-02", "2023-01-03")
+
+        self.assertEqual(
+            [(r.date, r.game_id, r.game_name, r.start, r.duration)
+             for r in result],
+            [("2023-01-02", "1002", "DOOM", 9 * 3600 + 30, 600),
+             ("2023-01-03", "1001", "Zelda BOTW", 14 * 3600 + 1800, 1800)])

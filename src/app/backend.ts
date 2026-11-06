@@ -1,7 +1,7 @@
 import { ServerAPI } from 'decky-frontend-lib'
 import logger from '../utils'
 import { toIsoDateOnly } from './formatters'
-import { DailyStatistics, Game, GameWithTime } from './model'
+import { DailyStatistics, Session, Game, GameWithTime } from './model'
 import { EventBus } from './system'
 
 export interface OverallPlayTimes {
@@ -103,6 +103,24 @@ export class Backend {
         }
 
         return response.result as DailyStatistics[]
+    }
+
+    /** Intervals played between two days (inclusive), oldest first. */
+    async fetchSessions(start: Date, end: Date): Promise<Session[]> {
+        const response = await this.serverApi.callPluginMethod<
+            { start_date: string; end_date: string },
+            Session[]
+        >('sessions_for_period', {
+            start_date: toIsoDateOnly(start),
+            end_date: toIsoDateOnly(end),
+        })
+        if (!response.success) {
+            this.errorOnBackend(
+                "Can't fetch sessions, because of backend error (sessions_for_period)"
+            )
+            return []
+        }
+        return response.result as Session[]
     }
 
     /** Games hidden from the dashboard. They are still tracked. */

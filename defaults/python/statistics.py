@@ -2,7 +2,7 @@ from datetime import datetime, date, time, timedelta
 from typing import Dict, List
 from python.db.dao import DailyGameTimeDto, Dao
 from python.helpers import format_date
-from python.models import DayStatistics, Game, GameWithTime, PagedDayStatistics
+from python.models import DayStatistics, Game, GameWithTime, PagedDayStatistics, Session
 
 
 class Statistics:
@@ -36,6 +36,12 @@ class Statistics:
             hasPrev=self.dao.is_there_is_data_before(start_time),
             hasNext=self.dao.is_there_is_data_after(end_time)
         )
+
+    def sessions(self, start: date, end: date) -> List[Session]:
+        """Intervals played between two days (inclusive), oldest first."""
+        return [Session(it.date, Game(it.game_id, it.game_name or ""),
+                        it.start, it.duration)
+                for it in self.dao.fetch_sessions(format_date(start), format_date(end))]
 
     def all_time_daily_statistics(self) -> List[DayStatistics]:
         """Every day with recorded playtime, oldest first (days without play are omitted)."""

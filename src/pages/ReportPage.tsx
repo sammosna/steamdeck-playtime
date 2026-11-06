@@ -3,6 +3,7 @@ import { Tab } from '../components/Tab'
 import { Tabs } from 'decky-frontend-lib'
 import { PageWrapper } from '../components/PageWrapper'
 import { ReportMonthly } from '../containers/ReportMonthly'
+import { ReportTimeline } from '../containers/ReportTimeline'
 import { ReportDaily } from '../containers/ReportDaily'
 import { ReportWeekly } from '../containers/ReportWeekly'
 import { ReportOverall } from '../containers/ReportOverall'
@@ -64,6 +65,15 @@ export const DetailedPage: VFC = () => {
                             </Tab>
                         ),
                         id: 'by-month',
+                    },
+                    {
+                        title: 'Timeline',
+                        content: (
+                            <Tab>
+                                <ReportTimeline />
+                            </Tab>
+                        ),
+                        id: 'timeline',
                     },
                 ]}
             />
