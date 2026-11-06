@@ -1,4 +1,4 @@
-import { computeInsights, gameRowsForPeriod, gameRowsFromTotals, timePerGame } from '../src/app/insights'
+import { computeDayInsights, computeInsights, gameRowsForPeriod, gameRowsFromTotals, timePerGame } from '../src/app/insights'
 import { DailyStatistics } from '../src/app/model'
 
 const a = { id: 'a', name: 'A' }
@@ -88,5 +88,19 @@ describe('gameRowsForPeriod', () => {
         ])
         expect(rows.map((it) => it.game.id)).toEqual(['b', 'a'])
         expect(rows[0].share).toBe(0.75)
+    })
+})
+
+describe('computeDayInsights', () => {
+    test('ranks and compares a day within its period', () => {
+        const r = computeDayInsights(week[3], week)
+        expect(r).toMatchObject({ total: 7200, gamesCount: 1, rank: 1, playedDays: 3 })
+        expect(r.topGame).toMatchObject({ time: 7200, share: 1 })
+        expect(r.vsAverage).toBeCloseTo(0.5) // average of played days: 4800
+    })
+
+    test('empty day has no rank or comparison', () => {
+        const r = computeDayInsights(week[2], week)
+        expect(r).toMatchObject({ total: 0, gamesCount: 0, rank: undefined, vsAverage: undefined })
     })
 })

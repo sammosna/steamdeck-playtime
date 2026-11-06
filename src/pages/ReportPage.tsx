@@ -3,6 +3,7 @@ import { Tab } from '../components/Tab'
 import { Tabs } from 'decky-frontend-lib'
 import { PageWrapper } from '../components/PageWrapper'
 import { ReportMonthly } from '../containers/ReportMonthly'
+import { ReportDaily } from '../containers/ReportDaily'
 import { ReportWeekly } from '../containers/ReportWeekly'
 import { ReportOverall } from '../containers/ReportOverall'
 import { GamePage } from '../containers/GamePage'
@@ -38,13 +39,13 @@ export const DetailedPage: VFC = () => {
                         id: 'all-time',
                     },
                     {
-                        title: 'By Month',
+                        title: 'By Day',
                         content: (
                             <Tab>
-                                <ReportMonthly onSelectGame={setSelectedGame} />
+                                <ReportDaily onSelectGame={setSelectedGame} />
                             </Tab>
                         ),
-                        id: 'by-month',
+                        id: 'by-day',
                     },
                     {
                         title: 'By Week',
@@ -54,6 +55,15 @@ export const DetailedPage: VFC = () => {
                             </Tab>
                         ),
                         id: 'by-week',
+                    },
+                    {
+                        title: 'By Month',
+                        content: (
+                            <Tab>
+                                <ReportMonthly onSelectGame={setSelectedGame} />
+                            </Tab>
+                        ),
+                        id: 'by-month',
                     },
                 ]}
             />

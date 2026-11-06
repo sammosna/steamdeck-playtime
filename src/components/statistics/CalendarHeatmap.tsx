@@ -3,6 +3,7 @@ import moment from 'moment'
 import { buildCalendar, heatLevel } from '../../app/calendar'
 import { DailyStatistics } from '../../app/model'
 import { humanReadableTime } from '../../app/formatters'
+import { Focusable } from 'decky-frontend-lib'
 import { Card } from '../Card'
 
 const BLUE = '26, 159, 255'
@@ -34,6 +35,10 @@ export const CalendarHeatmap: FC<{
     showDayNumbers?: boolean
     /** Write the play time inside each cell */
     showTime?: boolean
+    /** When set, days become focusable and activating one reports its date */
+    onSelect?: (date: string) => void
+    /** Date (YYYY-MM-DD) to highlight */
+    selected?: string
 }> = (props) => {
     const cells = useMemo(
         () => buildCalendar(props.days, props.start, props.end),
@@ -97,42 +102,60 @@ export const CalendarHeatmap: FC<{
                                     {name}
                                 </div>
                             ))}
-                        {cells.map((cell) => (
-                            <div
-                                key={cell.date}
-                                title={`${moment(cell.date).format('ddd D MMM YYYY')} · ${humanReadableTime(
-                                    cell.seconds
-                                )}`}
-                                style={{
-                                    gridColumn: col(cell) + (props.horizontal ? 1 : 2),
-                                    gridRow: row(cell) + 1,
-                                    aspectRatio: '1',
-                                    borderRadius: 4,
-                                    background: cell.outside
-                                        ? 'transparent'
-                                        : color(heatLevel(cell.seconds, max)),
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '10px',
-                                    lineHeight: 1.2,
-                                    overflow: 'hidden',
-                                    color: '#fff',
-                                }}
-                            >
-                                {!cell.outside && props.showDayNumbers && (
-                                    <span style={{ opacity: 0.8 }}>
-                                        {moment(cell.date).format('D')}
-                                    </span>
-                                )}
-                                {!cell.outside && props.showTime && cell.seconds > 0 && (
-                                    <span style={{ fontWeight: 600 }}>
-                                        {humanReadableTime(cell.seconds)}
-                                    </span>
-                                )}
-                            </div>
-                        ))}
+                        {cells.map((cell) => {
+                            const style: CSSProperties = {
+                                gridColumn: col(cell) + (props.horizontal ? 1 : 2),
+                                gridRow: row(cell) + 1,
+                                aspectRatio: '1',
+                                borderRadius: 4,
+                                background: cell.outside
+                                    ? 'transparent'
+                                    : color(heatLevel(cell.seconds, max)),
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '10px',
+                                lineHeight: 1.2,
+                                overflow: 'hidden',
+                                color: '#fff',
+                                boxShadow:
+                                    cell.date === props.selected ? 'inset 0 0 0 2px #fff' : undefined,
+                            }
+                            const content = (
+                                <>
+                                    {!cell.outside && props.showDayNumbers && (
+                                        <span style={{ opacity: 0.8 }}>
+                                            {moment(cell.date).format('D')}
+                                        </span>
+                                    )}
+                                    {!cell.outside && props.showTime && cell.seconds > 0 && (
+                                        <span style={{ fontWeight: 600 }}>
+                                            {humanReadableTime(cell.seconds)}
+                                        </span>
+                                    )}
+                                </>
+                            )
+                            const title = `${moment(cell.date).format('ddd D MMM YYYY')} · ${humanReadableTime(
+                                cell.seconds
+                            )}`
+                            return props.onSelect && !cell.outside ? (
+                                <Focusable
+                                    key={cell.date}
+                                    // @ts-ignore: title is passed through to the DOM node
+                                    title={title}
+                                    style={style}
+                                    onActivate={() => props.onSelect!(cell.date)}
+                                    onClick={() => props.onSelect!(cell.date)}
+                                >
+                                    {content}
+                                </Focusable>
+                            ) : (
+                                <div key={cell.date} title={title} style={style}>
+                                    {content}
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
             </div>

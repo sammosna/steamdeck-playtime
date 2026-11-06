@@ -144,3 +144,32 @@ export function computeInsights(
             previousTotal > 0 ? (total - previousTotal) / previousTotal : undefined,
     }
 }
+
+export interface DayInsights {
+    total: number
+    gamesCount: number
+    topGame?: GameShare & { share: number }
+    /** 1-based position among the played days of the period (1 = busiest) */
+    rank?: number
+    playedDays: number
+    /** Relative difference vs the average of the played days of the period */
+    vsAverage?: number
+}
+
+/** Insights of a single day, compared against the days of the period it belongs to. */
+export function computeDayInsights(day: DailyStatistics, period: DailyStatistics[]): DayInsights {
+    const games = timePerGame([day])
+    const played = period.filter((it) => it.total > 0)
+    const average = played.length > 0 ? played.reduce((acc, it) => acc + it.total, 0) / played.length : 0
+    return {
+        total: day.total,
+        gamesCount: games.length,
+        topGame:
+            games.length > 0
+                ? { ...games[0], share: day.total > 0 ? games[0].time / day.total : 0 }
+                : undefined,
+        rank: day.total > 0 ? played.filter((it) => it.total > day.total).length + 1 : undefined,
+        playedDays: played.length,
+        vsAverage: day.total > 0 && average > 0 ? (day.total - average) / average : undefined,
+    }
+}
