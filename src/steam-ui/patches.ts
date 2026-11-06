@@ -79,8 +79,11 @@ const FOOTER_CHIP: CSSProperties = {
     color: 'rgba(255, 255, 255, 0.85)',
 }
 
+// When the Toolbar plugin is installed it hosts this entry in its own footer row (so the
+// d-pad can move between the two), and reads the route published here. Skip our own pill then.
 export function patchLibraryHome(serverAPI: ServerAPI): Mountable {
-    return routePatch(serverAPI, '/library/home', (props: { children: ReactElement }) => {
+    const route = routePatch(serverAPI, '/library/home', (props: { children: ReactElement }) => {
+        if ((window as any).__toolbarHostsHomeEntries) return props
         const chip = createElement(
             'div',
             { style: FOOTER_CHIP },
@@ -95,4 +98,14 @@ export function patchLibraryHome(serverAPI: ServerAPI): Mountable {
         })
         return { ...props, children: createElement(Fragment, null, props.children, entry) }
     })
+    return {
+        mount() {
+            ;(window as any).__playtimeHomeEntryRoute = DETAILED_REPORT_ROUTE
+            route.mount()
+        },
+        unMount() {
+            delete (window as any).__playtimeHomeEntryRoute
+            route.unMount()
+        },
+    }
 }
