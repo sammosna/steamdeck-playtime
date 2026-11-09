@@ -1,7 +1,19 @@
-import { afterPatch, Focusable, RoutePatch, ServerAPI } from 'decky-frontend-lib'
+import {
+    afterPatch,
+    appDetailsClasses,
+    DialogButton,
+    findInReactTree,
+    Focusable,
+    RoutePatch,
+    ServerAPI,
+} from 'decky-frontend-lib'
 import { createElement, CSSProperties, Fragment, ReactElement } from 'react'
 import { FaClock } from 'react-icons/fa'
-import { DETAILED_REPORT_ROUTE, navigateToPage } from '../pages/navigation'
+import {
+    DETAILED_REPORT_ROUTE,
+    navigateToGameInsights,
+    navigateToPage,
+} from '../pages/navigation'
 import { AppDetails, AppOverview } from '../app/model'
 import { Mountable } from '../app/system'
 import { Cache } from '../app/cache'
@@ -16,6 +28,37 @@ function routePatch(serverAPI: ServerAPI, path: string, patch: RoutePatch): Moun
             serverAPI.routerHook.removePatch(path, patch)
         },
     }
+}
+
+// Puts a "PlayTime" button right below the play bar of the game page.
+function addInsightsButton(appPage: ReactElement, appId: number) {
+    const container = findInReactTree(
+        appPage,
+        (node) =>
+            Array.isArray(node?.props?.children) &&
+            node.props.className?.includes(appDetailsClasses.InnerContainer)
+    )
+    if (!container) return
+    const button = createElement(Focusable, {
+        key: 'playtime-insights',
+        style: { padding: '8px 2.8vw 0' },
+        children: createElement(
+            DialogButton,
+            {
+                style: {
+                    width: 'auto',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '8px 16px',
+                },
+                onClick: () => navigateToGameInsights(appId),
+            },
+            createElement(FaClock, { size: 13 }),
+            'PlayTime'
+        ),
+    })
+    container.props.children.splice(1, 0, button)
 }
 
 export function patchAppPage(
@@ -43,6 +86,9 @@ export function patchAppPage(
                 }
                 // just getting value - it fixes blinking issue
                 details.nPlaytimeForever
+                if (overview.app_type == 1073741824) {
+                    addInsightsButton(ret1, app_id)
+                }
                 return ret1
             })
             return props

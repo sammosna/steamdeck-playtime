@@ -8,8 +8,10 @@ import { AppInfoStore, AppStore } from './app/model'
 import { DetailedPage } from './pages/ReportPage'
 import { Settings } from './app/settings'
 import { SettingsPage } from './pages/SettingsPage'
+import { GameInsightsPage } from './pages/GameInsightsPage'
 import {
     DETAILED_REPORT_ROUTE,
+    GAME_INSIGHTS_ROUTE,
     MANUALLY_ADJUST_TIME,
     SETTINGS_ROUTE,
 } from './pages/navigation'
@@ -165,6 +167,23 @@ function createMountables(
         },
         unMount() {
             serverApi.routerHook.removeRoute(MANUALLY_ADJUST_TIME)
+        },
+    })
+    mounts.push({
+        mount() {
+            serverApi.routerHook.addRoute(GAME_INSIGHTS_ROUTE, () => (
+                <LocatorProvider
+                    reports={reports}
+                    sessionPlayTime={sessionPlayTime}
+                    settings={settings}
+                    timeManipulation={timeMigration}
+                >
+                    <GameInsightsPage />
+                </LocatorProvider>
+            ))
+        },
+        unMount() {
+            serverApi.routerHook.removeRoute(GAME_INSIGHTS_ROUTE)
         },
     })
     mounts.push(patchAppPage(serverApi, cachedPlayTimes))
